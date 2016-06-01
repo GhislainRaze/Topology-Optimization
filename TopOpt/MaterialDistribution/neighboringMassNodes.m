@@ -1,3 +1,8 @@
+%% Neighboring mass nodes
+%
+% Finds the integration points in the influence domain of the mass nodes.
+% Updates the _cells_ structure.
+
 function cells = neighboringMassNodes(mnodes,cells)
 
     x1=[mnodes.x];
