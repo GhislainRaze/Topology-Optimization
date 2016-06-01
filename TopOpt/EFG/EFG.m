@@ -1,12 +1,12 @@
 %% Element-Free Galerkin (EFG)
-% Created by J.T.B. Overvelde - 18 April 2012
-% 
-% Master's thesis - The Moving Node Approach in Topology Optimization
-% 
+%
+% Code developed by Ghislain Raze under the supervision of Prof. Joseph
+% Morlier
+%
+% Initial code by Johannes T. B. Overvelde
+%
 % <http://www.overvelde.com>
 %
-% Modified by G. Raze - June 2016
-% 
 % Determines the stiffness matrix for given nodal distribution, material 
 % distribution and background mesh and determines the displacement by 
 % solving the system of equations for given boundary conditions.

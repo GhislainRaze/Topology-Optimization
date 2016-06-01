@@ -1,12 +1,12 @@
 %% Element-Free Galerkin (EFG) mesh initialization
-% Created by J.T.B. Overvelde - 18 April 2012
 %
-% Master's thesis - The Moving Noda Approach in Topology Optimization
+% Code developed by Ghislain Raze under the supervision of Prof. Joseph
+% Morlier
+%
+% Initial code by Johannes T. B. Overvelde
 %
 % <http://www.overvelde.com>
 %
-% Modified by G. Raze - June 2016
-% 
 % Initialize problem, nodal distribution and background mesh for an EFG
 % analysis. The global constants are modified.
 

@@ -1,13 +1,12 @@
 %% Element-Free Galerkin (EFG) method : Unit matrices
 %
-% Created by J.T.B. Overvelde - 18 April 2012
+% Code developed by Ghislain Raze under the supervision of Prof. Joseph
+% Morlier
 %
-% Master's thesis - The Moving Noda Approach in Topology Optimization
+% Initial code by Johannes T. B. Overvelde
 %
 % <http://www.overvelde.com>
 %
-% Modified by G. Raze - June 2016
-% 
 % Determines the stiffness matrices associated with a unit density at the 
 % Gauss points for a given nodal distribution and background mesh. Also
 % determines the nodal force vector and the quantities associated to

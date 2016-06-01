@@ -1,12 +1,12 @@
 %% Moving Least Squares (MLS) Shape functions
-% Created by J.T.B. Overvelde - 18 April 2012
 %
-% Master's thesis - The Moving Noda Approach in Topology Optimization
+% Code developed by Ghislain Raze under the supervision of Prof. Joseph
+% Morlier
+%
+% Initial code by Johannes T. B. Overvelde
 %
 % <http://www.overvelde.com>
 %
-% Modified by G. Raze - June 2016
-% 
 % MLS Shape function at coordinate _y_ for nodes _x_. _dm_ is the smoothing
 % length and _pn_ is the polynomial order.
 
