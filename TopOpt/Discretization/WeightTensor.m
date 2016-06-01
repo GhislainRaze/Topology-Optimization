@@ -6,8 +6,8 @@
 %
 % <http://www.overvelde.com>
 %
-% Kernel function used in the MLS shape function for node x at coordinate
-% xi.
+% Kernel function used in the MLS shape function at coordinate _xj_ for a
+% node at coordinate _xi_. _dm_ is the smoothing length.
 
 function [w dwdx dwdy]=WeightTensor(xj,xi,dm)
 

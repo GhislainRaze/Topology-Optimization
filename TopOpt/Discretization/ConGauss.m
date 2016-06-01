@@ -6,7 +6,7 @@
 %
 % <http://www.overvelde.com>
 %
-% The position and weights of n integration points in one dimension for
+% The position and weights of _n_ integration points in one dimension for
 % normalized length.
 
 function [t,w]=ConGauss(n)

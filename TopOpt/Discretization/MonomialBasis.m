@@ -6,7 +6,7 @@
 %
 % <http://www.overvelde.com>
 %
-% Monomial basis at coordinate x for pn terms.
+% Monomial basis at coordinate _x_ for _pn_ terms.
 
 function [p dpdx dpdy]=MonomialBasis(x,pn)
  
