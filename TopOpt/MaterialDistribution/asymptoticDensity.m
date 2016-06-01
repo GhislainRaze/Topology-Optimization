@@ -1,6 +1,11 @@
 %% Asymptotic density
 %
-% G. Raze - June 2016
+% Code developed by Ghislain Raze under the supervision of Prof. Joseph
+% Morlier
+%
+% Initial code by Johannes T. B. Overvelde
+%
+% <http://www.overvelde.com>
 %
 % Computes the asymptotic density at coordinate _xj_ of node _xi_ with
 % associated _thetai_ (rotation angle), _dmi_ (smoothing lenghts) and _mi_

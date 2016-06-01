@@ -1,5 +1,12 @@
 %% Neighboring mass nodes
 %
+% Code developed by Ghislain Raze under the supervision of Prof. Joseph
+% Morlier
+%
+% Initial code by Johannes T. B. Overvelde
+%
+% <http://www.overvelde.com>
+%
 % Finds the integration points in the influence domain of the mass nodes.
 % Updates the _cells_ structure.
 
