@@ -1,3 +1,7 @@
+%% Method display
+%
+% Displays the chosen discretization method.
+
 function methodDisplay(choice)
 switch choice
     case 1
