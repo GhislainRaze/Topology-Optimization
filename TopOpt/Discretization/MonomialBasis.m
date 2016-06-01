@@ -1,8 +1,9 @@
 %% Monomial Basis
 %
-% Created by J.T.B. Overvelde - 18 April 2012
+% Code developed by Ghislain Raze under the supervision of Prof. Joseph
+% Morlier
 %
-% Master's thesis - The Moving Node Approach in Topology Optimization
+% Initial code by Johannes T. B. Overvelde
 %
 % <http://www.overvelde.com>
 %
