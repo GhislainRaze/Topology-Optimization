@@ -25,13 +25,13 @@ The main file topologyOptimization.m is a Matlab script that launches the optimi
 * The optimization variables (mass nodes, undeformable structural members or deformable structural members)
 * The optimization algorithm
 
-## Problem constants
+### Problem constants
 The problem constants are defined in the `Constants\` directory. This includes
 * Problem geometry
 * Boundary conditions
 * Material distribution constants
  
-## Discretization
+### Discretization
 The discretization methods use functions from the `Discretization\`, `EFG\` and `FEM\` directories.
 
 The files `InitEFGMesh.m` and `InitFEMMesh.m` contain the discretization constants. This includes
@@ -42,6 +42,6 @@ The files `InitEFGMesh.m` and `InitFEMMesh.m` contain the discretization constan
 
 The other files of these directories should not be modified directly by the user.
 
-## Optimisation
+### Optimization
 The optimizers as well as some useful functions are placed in the `Optimization\` directory. Depending on the algorithm, some specific constants can be found in this directory files.
 
