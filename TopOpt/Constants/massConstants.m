@@ -1,5 +1,11 @@
 %% Mass Constants
 %
+% Code developed by Ghislain Raze under the supervision of Prof. Joseph
+% Morlier
+%
+% Initial code by Johannes T. B. Overvelde
+%
+% <http://www.overvelde.com>
 %
 % This functions takes a set of problem constants _pCon_ and a set of
 % discretization constants _mCon_ as arguments. It is used to define a

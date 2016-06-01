@@ -1,5 +1,12 @@
 %% Boundary Conditions Parameters
 %
+% Code developed by Ghislain Raze under the supervision of Prof. Joseph
+% Morlier
+%
+% Initial code by Johannes T. B. Overvelde
+%
+% <http://www.overvelde.com>
+%
 % This functions takes a set of problem constants _pCon_ to compute
 % the parameters associated with the boundary conditions defined
 % in the <./problemConstants.html Problem Constants> file. 

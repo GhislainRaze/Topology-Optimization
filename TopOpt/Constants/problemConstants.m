@@ -1,5 +1,11 @@
 %% Problem Constants
 %
+% Code developed by Ghislain Raze under the supervision of Prof. Joseph
+% Morlier
+%
+% Initial code by Johannes T. B. Overvelde
+%
+% <http://www.overvelde.com>
 %
 % This function creates the set of problem constants _pCon_. The problem
 % constants are:
