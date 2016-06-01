@@ -1,5 +1,12 @@
 %% Finite Element Method (FEM) shape functions
 %
+% Code developed by Ghislain Raze under the supervision of Prof. Joseph
+% Morlier
+%
+% Initial code by Johannes T. B. Overvelde
+%
+% <http://www.overvelde.com>
+%
 % Provides the shape functions of quadrangle elements at reduced coordinate
 % _x_. To identify the element, the number of nodes _nn_ is also required.
 %

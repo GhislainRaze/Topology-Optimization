@@ -1,6 +1,11 @@
 %% Finite Element Method (FEM)
 %
-% G. Raze - June 2016
+% Code developed by Ghislain Raze under the supervision of Prof. Joseph
+% Morlier
+%
+% Initial code by Johannes T. B. Overvelde
+%
+% <http://www.overvelde.com>
 %
 % Determines the stiffness matrix for given nodal distribution, material 
 % distribution and background mesh and determines the displacement by 

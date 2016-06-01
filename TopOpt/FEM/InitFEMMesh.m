@@ -1,5 +1,11 @@
 % Finite Element Method (FEM) mesh initialization
-% G. Raze - June 2016
+%
+% Code developed by Ghislain Raze under the supervision of Prof. Joseph
+% Morlier
+%
+% Initial code by Johannes T. B. Overvelde
+%
+% <http://www.overvelde.com>
 %
 % Initialize problem and mesh for a FEM analysis. The global constants are
 % modified.

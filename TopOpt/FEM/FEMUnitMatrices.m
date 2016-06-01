@@ -1,6 +1,11 @@
 %% Finite Element Method (FEM): unit matrices
 %
-% G. Raze - June 2016
+% Code developed by Ghislain Raze under the supervision of Prof. Joseph
+% Morlier
+%
+% Initial code by Johannes T. B. Overvelde
+%
+% <http://www.overvelde.com>
 %
 % Determines the stiffness matrices associated with a unit density at the 
 % Gauss points for a given nodal distribution and background mesh. Also
