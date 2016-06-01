@@ -1,8 +1,14 @@
-%Created by J.T.B. Overvelde - 18 April 2012
-%Master's thesis - The Moving Noda Approach in Topology Optimization
-%http://www.overvelde.com
+%% Element-Free Galerkin (EFG) mesh initialization
+% Created by J.T.B. Overvelde - 18 April 2012
 %
-%Initialize problem, nodal distribution and background mesh.
+% Master's thesis - The Moving Noda Approach in Topology Optimization
+%
+% <http://www.overvelde.com>
+%
+% Modified by G. Raze - June 2016
+% 
+% Initialize problem, nodal distribution and background mesh for an EFG
+% analysis. The global constants are modified.
 
 function time1=InitEFGMesh()
 

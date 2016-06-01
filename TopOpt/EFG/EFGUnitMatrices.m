@@ -6,9 +6,20 @@
 %
 % <http://www.overvelde.com>
 %
-% Determines the stiffness matrix for given nodal distribution and
-% background mesh and determines the displacement by solving the system of
-% equations for given boundary conditions.
+% Modified by G. Raze - June 2016
+% 
+% Determines the stiffness matrices associated with a unit density at the 
+% Gauss points for a given nodal distribution and background mesh. Also
+% determines the nodal force vector and the quantities associated to
+% lagrangian multipliers.
+%
+% The outputs are
+%
+% * _Ke_: the unit stiffness matrices (a cell of sparse matrices)
+% * _f_: the nodal force vector
+% * _G_: the lagrangian multipliers matrix
+% * _q_: the second member associated with lagrangian multipliers
+% * _time1_: the time to assemble the problem
 
 function [Ke,f,G,q,time1]=EFGUnitMatrices()
 
@@ -21,10 +32,10 @@ tic %Assembly timer
 Ke = cell(mCon.m*mCon.nG^2,1);
 f=zeros(2*mCon.n,1);
 
-for ic=1:mCon.m                                         % Iterations over the internal cells
-    for ip=1:cells(ic).ni                               % Iterations over the cell Guass points
+for ic=1:mCon.m                                             % Iterations over the internal cells
+    for ip=1:cells(ic).ni                                   % Iterations over the cell Gauss points
         if ~isempty(cells(ic).int(ip).nen)
-            B=zeros(3,2*length(cells(ic).int(ip).nen));     % cells(ic).int(ip).nen = neighboring nodes
+            B=zeros(3,2*length(cells(ic).int(ip).nen));     
             F=zeros(2*length(cells(ic).int(ip).nen),1);
             en=zeros(1,2*length(cells(ic).int(ip).nen));
             [phi,dphidx,dphidy]=MLSShape([nodes(cells(ic).int(ip).nen).x]',cells(ic).int(ip).x,mCon.dm,mCon.pn);
@@ -32,7 +43,7 @@ for ic=1:mCon.m                                         % Iterations over the in
             B(2,2:2:end)=dphidy;
             B(3,1:2:end-1)=dphidy;
             B(3,2:2:end)=dphidx;
-            F(1:2:end-1)=phi*cells(ic).int(ip).cv(1);       % cells(ic).int(ip).cv = body force vector
+            F(1:2:end-1)=phi*cells(ic).int(ip).cv(1);       
             F(2:2:end)=phi*cells(ic).int(ip).cv(2);
             en(1:2:end-1)=2*[cells(ic).int(ip).nen]-1;      % x index of neighboring cells
             en(2:2:end)=2*[cells(ic).int(ip).nen];          % y index
@@ -97,7 +108,6 @@ if mCon.BCuType~=1
     end
 end
 time1=toc; %Assembly timer
-%disp([num2str(time1),' seconds to assemble the matrices'])
 tic %Solve timer
 G = sparse(G);
 end

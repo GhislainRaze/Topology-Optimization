@@ -7,9 +7,35 @@
 %
 % Modified by G. Raze - June 2016
 % 
-% Determines the stiffness matrix for given nodal distribution and
-% background mesh and determines the displacement by solving the system of
-% equations for given boundary conditions.
+% Determines the stiffness matrix for given nodal distribution, material 
+% distribution and background mesh and determines the displacement by 
+% solving the system of equations for given boundary conditions.
+%
+%
+% The inputs are
+%
+% * _Ke_: the unit stiffness matrices
+% * _f_: the nodal force vector
+% * _G_: the lagrangian multipliers matrix
+% * _q_: the second member associated with lagrangian multipliers
+% * _distrType_: the material distribution type
+%
+% If they are not specified, they are computed from EFGUnitMatrices
+%
+% The outputs are
+%
+% * _ug_: the nodal displacements
+% * _Compliance_
+% * _dCdx_: the compliance sensitivities with respect to the material
+% distribution variables
+% * _mTot_: the total mass of the structure
+% * _tK_: the time to assemble the stiffness matrix
+% * _tm_: the time to compute the total mass
+% * _tdK_: the time to assemble the derivative of the stiffness matrix
+% * _time1_: the time to make the assembly
+% * _time2_: the time to solve the linear system
+% * _time3_: the time to compute the compliance and its sensitivities
+
 
 function [ug,Compliance,dCdx,mTot,tk,tm,tdK,time1,time2,time3]=...
     EFG(Ke,f,G,q,distrType)
@@ -38,7 +64,7 @@ tk = 0;
 tm = 0;
 tdK = 0;
 for ic=1:mCon.m                                         % Iterations over the internal cells
-    for ip=1:cells(ic).ni                               % Iterations over the cell Guass points
+    for ip=1:cells(ic).ni                               % Iterations over the cell Gauss points
         if ~isempty(cells(ic).int(ip).nen)
             en=zeros(1,2*length(cells(ic).int(ip).nen));
             en(1:2:end-1)=2*[cells(ic).int(ip).nen]-1;      % x index of neighboring cells
@@ -71,7 +97,6 @@ end
 
 
 time1=toc; %Assembly timer
-%disp([num2str(time1),' seconds to assemble the matrices'])
 
 tic %Solve timer
 
@@ -82,36 +107,15 @@ r=[K G;G' zeros(length(q))]\[f;q];
 ug(:,1)=r(1:2:end-length(q)-1);
 ug(:,2)=r(2:2:end-length(q));
 
-%clear r K G f q
 
 time2=toc; %Solve timer
-%disp([num2str(time2),' seconds to solve the system'])
-tic %Find nodal values timer
 
-%Calculate the strains and stress constants belonging to the shape
-%functions at the nodal positions
-% eg=zeros(mCon.n,3); sg=zeros(mCon.n,3);
-% for i=1:mCon.n
-%     [phi,dphidx,dphidy]=MLSShape([nodes(nodes(i).nen).x]',nodes(i).x,mCon.dm,mCon.pn);
-%     %strain
-%     eg(i,1)=sum(dphidx.*ug([nodes(i).nen],1)'); 
-%     eg(i,2)=sum(dphidy.*ug([nodes(i).nen],2)');
-%     eg(i,3)=1/2*(sum(dphidx.*ug([nodes(i).nen],2)')...
-%                  +sum(dphidy.*ug([nodes(i).nen],1)'));
-%     %stress
-%     sg(i,:)=pCon.D*eg(i,:)';
-%     sg(i,3)=2*sg(i,3);
-% end
-
-time3=toc; %Find nodal values timer
-%disp([num2str(time3),' seconds to find the nodal values'])
 tic %Find error norm
  
 Compliance=f'*r(1:end-length(q));
 for i = 1 : nd*mmCon.n
    dCdx(i) = -r(1:end-length(q))'*dKdx{i}*r(1:end-length(q));
 end
-time4=toc;    
-%disp([num2str(time4),' seconds to find the compliance'])
+time3=toc;    
 
-
+end
