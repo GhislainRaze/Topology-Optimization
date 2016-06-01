@@ -1,5 +1,12 @@
 %% FEM Compliance
 %
+% Code developed by Ghislain Raze under the supervision of Prof. Joseph
+% Morlier
+%
+% Initial code by Johannes T. B. Overvelde
+%
+% <http://www.overvelde.com>
+%
 % Function used to provide the compliance and its sensitivities based on a
 % FEM analysis to the _fminunc_, _fmincon_ or _ga_ Matlab optimizers.
 %

@@ -1,5 +1,12 @@
 %% Matlab Fmin
 %
+% Code developed by Ghislain Raze under the supervision of Prof. Joseph
+% Morlier
+%
+% Initial code by Johannes T. B. Overvelde
+%
+% <http://www.overvelde.com>
+%
 % Calls Matlab's _ga_ (genetic algorithm) to optimize the material
 % distribution.
 

@@ -1,5 +1,12 @@
 %% Matlab Fmin
 %
+% Code developed by Ghislain Raze under the supervision of Prof. Joseph
+% Morlier
+%
+% Initial code by Johannes T. B. Overvelde
+%
+% <http://www.overvelde.com>
+%
 % Calls Matlab's _fminunc_ (for mass nodes (_distrType_ = 1) or
 % undeformable structural members (_distrType_ = 2)) or _fmincon_ (for
 % deformable structural members (_distrType_ = 3)) to optimize the material

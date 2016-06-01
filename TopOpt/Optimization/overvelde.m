@@ -1,5 +1,12 @@
 %% Overvelde's Optimization Algorithm
 %
+% Code developed by Ghislain Raze under the supervision of Prof. Joseph
+% Morlier
+%
+% Initial code by Johannes T. B. Overvelde
+%
+% <http://www.overvelde.com>
+%
 % Calls Overvelde's algorithm to optimize the material distribution.
 %
 % Overvelde's algorithm is a flow-like optimization algorithm based on a

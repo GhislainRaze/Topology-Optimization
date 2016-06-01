@@ -1,3 +1,13 @@
+%% Outfun
+%
+% Code developed by Ghislain Raze under the supervision of Prof. Joseph
+% Morlier
+%
+% Initial code by Johannes T. B. Overvelde
+%
+% <http://www.overvelde.com>
+%
+
 function stop = outfun(x,optimValues,state)
      stop = false;
  
