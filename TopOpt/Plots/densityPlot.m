@@ -1,5 +1,12 @@
 %% Density Plot
 %
+% Code developed by Ghislain Raze under the supervision of Prof. Joseph
+% Morlier
+%
+% Initial code by Johannes T. B. Overvelde
+%
+% <http://www.overvelde.com>
+%
 % Plots the material distribution in levels of gray. The nodes are also
 % plotted in blue.
 
