@@ -1,6 +1,36 @@
 %% Finite Element Method (FEM)
 %
+% G. Raze - June 2016
 %
+% Determines the stiffness matrix for given nodal distribution, material 
+% distribution and background mesh and determines the displacement by 
+% solving the system of equations for given boundary conditions.
+%
+%
+% The inputs are
+%
+% * _Ke_: the unit stiffness matrix
+% * _f_: the nodal force vector
+% * _ubar_: the imposed nodal displacements (set to NaN if there is no
+% imposed displacement associated to a given node)
+% * _distrType_: the mass distribution type
+%
+% If they are not specified, they are computed from FEMUnitMatrices
+%
+% The outputs are
+%
+% * _ug_: the nodal displacements
+% * _Compliance_
+% * _dCdx_: the compliance sensitivities with respect to the material
+% distribution variables
+% * _mTot_: the total mass of the structure
+% * _tK_: the time to assemble the stiffness matrix
+% * _tm_: the time to compute the total mass
+% * _tdK_: the time to assemble the derivative of the stiffness matrix
+% * _time1_: the time to make the assembly
+% * _time2_: the time to solve the linear system
+% * _time3_: the time to compute the compliance and its sensitivities
+
 
 function [ug,Compliance,dCdx,mTot,tk,tm,tdK,time1,time2,time3]=...
     FEM(Ke,f,ubar,distrType)
@@ -34,8 +64,8 @@ tic %Assembly timer
 for ic=1:mCon.m                                         % Iterations over the internal cells
     for ip=1:cells(ic).ni                               % Iterations over the cell Gauss points
         en=zeros(1,2*length(cells(ic).nen));
-        en(1:2:end-1)=2*[cells(ic).nen]-1;      % x index of neighboring cells
-        en(2:2:end)=2*[cells(ic).nen];          % y index
+        en(1:2:end-1)=2*[cells(ic).nen]-1;              % x index of neighboring cells
+        en(2:2:end)=2*[cells(ic).nen];                  % y index
         emn=zeros(1,nd*length(cells(ic).int(ip).nemn));
         for i = 1:nd
             emn(i:nd:end-nd+i)=nd*[cells(ic).int(ip).nemn]-nd+i;
@@ -63,7 +93,6 @@ end
 
 
 time1=toc; %Assembly timer
-%disp([num2str(time1),' seconds to assemble the matrices'])
 
 
 %% Solver
@@ -88,14 +117,8 @@ ug(:,1)=r(1:2:end-1);
 ug(:,2)=r(2:2:end);
 
 
-%clear r K G f q
 
 time2=toc; %Solve timer
-%disp([num2str(time2),' seconds to solve the system'])
-tic %Find nodal values timer
-
-time3=toc; %Find nodal values timer
-%disp([num2str(time3),' seconds to find the nodal values'])
 
  
 %% Computing the compliance and its derivatives
@@ -105,7 +128,6 @@ Compliance=f'*r;
 for i = 1 : nd*mmCon.n
    dCdx(i) = -r'*dKdx{i}*r;
 end
-time4=toc;    
-%disp([num2str(time4),' seconds to find the compliance'])
+time3=toc;    
 end
 

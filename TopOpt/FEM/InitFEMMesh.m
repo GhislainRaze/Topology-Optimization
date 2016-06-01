@@ -1,8 +1,8 @@
-%Created by J.T.B. Overvelde - 18 April 2012
-%Master's thesis - The Moving Noda Approach in Topology Optimization
-%http://www.overvelde.com
+% Finite Element Method (FEM) mesh initialization
+% G. Raze - June 2016
 %
-%Initialize problem, nodal distribution and background mesh.
+% Initialize problem and mesh for a FEM analysis. The global constants are
+% modified.
 
 function time1=InitFEMMesh()
 
