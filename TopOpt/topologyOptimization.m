@@ -1,5 +1,11 @@
 %% Topology optimization
-% 
+%
+% Code developed by Ghislain Raze under the supervision of Prof. Joseph
+% Morlier
+%
+% Initial code by Johannes T. B. Overvelde
+%
+% <http://www.overvelde.com>
 
 clear all
 close all

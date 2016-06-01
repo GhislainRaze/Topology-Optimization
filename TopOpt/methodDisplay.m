@@ -1,5 +1,12 @@
 %% Method display
 %
+% Code developed by Ghislain Raze under the supervision of Prof. Joseph
+% Morlier
+%
+% Initial code by Johannes T. B. Overvelde
+%
+% <http://www.overvelde.com>
+%
 % Displays the chosen discretization method.
 
 function methodDisplay(choice)
