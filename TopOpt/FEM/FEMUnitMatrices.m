@@ -44,7 +44,7 @@ for ic=1:mCon.m                                         % Iterations over the in
         F(2:2:end)=phi*cells(ic).int(ip).cv(2);
         en(1:2:end-1)=2*[cells(ic).nen]-1;              % x index of neighboring cells
         en(2:2:end)=2*[cells(ic).nen];                  % y index
-        Ke{(ic-1)*mCon.nG^2+ip}(en,en)= sparse(B'*pCon.D*B*cells(ic).int(ip).w*cells(ic).J);
+        Ke{(ic-1)*mCon.nG^2+ip} = B'*pCon.D*B*cells(ic).int(ip).w*cells(ic).J;
         f(en)=f(en)+F*cells(ic).int(ip).w*cells(ic).J;
     end
 end
