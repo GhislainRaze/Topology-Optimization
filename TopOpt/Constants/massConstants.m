@@ -35,38 +35,41 @@
 % angles and dimensions
 function [mmCon,mnodes] = massConstants(pCon,mCon)
 
-    %Meshless mass constants
-    mmCon.nx=6*pCon.Lx;                         % Number of mass nodes along the width
-    mmCon.ny=3*pCon.Ly;                         % Number of mass nodes along the height
-    mmCon.n=mmCon.nx*mmCon.ny;                  % Total number of mass nodes
-    mmCon.d=1.5;                                % Relative smoothing length
-    mmCon.m = mCon.m;                           % Number of integration cells
-    mmCon.rhoMin = 1e-6;                        % Minimum density
-    mmCon.rhoMax = 1.1;                         % Maximum density
-    mmCon.distrType = 2;                        % Distribution type (1: in a rectangle, 2: random)
+    % Meshless mass constants
+    mmCon.nx=9*pCon.Lx;                             % Number of mass nodes along the width
+    mmCon.ny=3*pCon.Ly;                             % Number of mass nodes along the height
+    mmCon.n=mmCon.nx*mmCon.ny;                      % Total number of mass nodes
+    mmCon.d=1.5;                                    % Relative smoothing length
+    mmCon.m = mCon.m;                               % Number of integration cells
+    mmCon.rhoMin = 1e-6;                            % Minimum density
+    mmCon.rhoMax = 1.1;                             % Maximum density
+    mmCon.distrType = 3;                            % Distribution type (1: in a rectangle, 2: random, 3: semi-random)
     
+    % Optimization parameters
+    mmCon.p = 3;                                    % Power law for the stiffness
+    mmCon.filter = true;                            % Density filter
     
     % Nodes distribution parameters
-    mmCon.Lx = pCon.Lx/2;                         % Rectangle length
-    mmCon.Ly = pCon.Ly/6;                       % Rectangle height
-    mmCon.drn = 0;%0.001*sqrt(mmCon.Lx^2 + mmCon.Ly^2);
+    mmCon.Lx = pCon.Lx;                           % Rectangle length
+    mmCon.Ly = pCon.Ly/6;                           % Rectangle height
+    mmCon.drn = 0.001*sqrt(mmCon.Lx^2 + mmCon.Ly^2);% Semi-random maximal radius
     
     if mmCon.nx ~= 1
         mmCon.x0 = 0;                               % Rectangle low left corner x coordinate
-        mmCon.dx=mmCon.Lx/(mmCon.nx-1);              % Horizontal distance between nodes
+        mmCon.dx=mmCon.Lx/(mmCon.nx-1);             % Horizontal distance between nodes
     else
         mmCon.x0 = pCon.Lx/2;
         mmCon.dx = pCon.Lx;
     end
     if mmCon.ny ~= 1
-        mmCon.y0 = -mmCon.Ly/2;                      % Rectangle low left corner y coordinate
-        mmCon.dy=mmCon.Ly/(mmCon.ny-1);              % Vertical distance between
+        mmCon.y0 = -mmCon.Ly/2;                     % Rectangle low left corner y coordinate
+        mmCon.dy=mmCon.Ly/(mmCon.ny-1);             % Vertical distance between
     else
         mmCon.y0 = 0;
         mmCon.dy = pCon.Ly;
     end
-    mmCon.dm=[mmCon.d*mmCon.dx ; mmCon.d*mmCon.dy];  % Smoothing length in x and y direction, respectively.
-    mmCon.mi = mmCon.dx*mmCon.dy;               % Mass per node     
+    mmCon.dm=[mmCon.d*mmCon.dx ; mmCon.d*mmCon.dy]; % Smoothing length in x and y direction, respectively.
+    mmCon.mi = mmCon.dx*mmCon.dy;                   % Mass per node     
 
     % Create mass nodes
     mnodes = struct;
@@ -81,10 +84,8 @@ function [mmCon,mnodes] = massConstants(pCon,mCon)
     if mmCon.distrType == 1             % Regular distribution
         for i=1:mmCon.nx
             for j=1:mmCon.ny
-                theta = rand()*2*pi;
                 mnodes((i-1)*mmCon.ny+j).x=[mmCon.dx*(i-1)+mmCon.x0;...
-                    mmCon.dy*(j-1)+mmCon.y0]+...
-                    rand()*mmCon.drn()*[cos(theta);sin(theta)];
+                    mmCon.dy*(j-1)+mmCon.y0];
             end
         end
     elseif mmCon.distrType == 2         % Random distribution
@@ -93,6 +94,15 @@ function [mmCon,mnodes] = massConstants(pCon,mCon)
                 mnodes((i-1)*mmCon.ny+j).x= [rand()*pCon.Lx;...
                     rand()*pCon.Ly-pCon.Ly/2];
                 mnodes((i-1)*mmCon.ny+j).theta = rand()*pi;
+            end
+        end
+    elseif mmCon.distrType == 3         % Semi-random distribution
+        for i=1:mmCon.nx
+            for j=1:mmCon.ny
+                theta = rand()*2*pi;
+                mnodes((i-1)*mmCon.ny+j).x=[mmCon.dx*(i-1)+mmCon.x0;...
+                    mmCon.dy*(j-1)+mmCon.y0]+...
+                    rand()*mmCon.drn()*[cos(theta);sin(theta)];
             end
         end
     end
