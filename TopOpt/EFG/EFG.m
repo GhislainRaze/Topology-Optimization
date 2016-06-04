@@ -80,7 +80,7 @@ for ic=1:mCon.m                                         % Iterations over the in
                 [mnodes(cells(ic).int(ip).nemn).m],...
                 mmCon.rhoMin,mmCon.rhoMax,distrType);
             tic
-            K(en,en)=K(en,en)+rho*Ke{(ic-1)*mCon.nG^2+ip};
+            K(en,en)=K(en,en)+rho^mmCon.p*Ke{(ic-1)*mCon.nG^2+ip};
             tk = tk+toc;
             tic
             mTot = mTot + rho*cells(ic).J*cells(ic).int(ip).w;
@@ -88,7 +88,7 @@ for ic=1:mCon.m                                         % Iterations over the in
             tic
             for i=1:length(emn)
                 dKdx{emn(i)}(en,en)=dKdx{emn(i)}(en,en)+...
-                    sparse(drhoAdx(i)*Ke{(ic-1)*mCon.nG^2+ip}); 
+                    sparse(mmCon.p*drhoAdx(i)*rho^(mmCon.p-1)*Ke{(ic-1)*mCon.nG^2+ip}); 
             end
             tdK = tdK + toc;
         end
