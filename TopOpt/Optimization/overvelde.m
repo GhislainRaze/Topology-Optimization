@@ -35,7 +35,7 @@ else
 end
 
 c = 0.8;
-iterMax = 100;
+iterMax = 500;
 relDif = 1;
 relDifMax = 1e-6;
 iter = 0;
@@ -48,7 +48,7 @@ disp('Unit matrices computed')
 
 dCdx = zeros(nd*length(mnodes),1);
 v = dCdx;
-dt = pCon.Lx/(mCon.nx-1);
+dt = pCon.Lx/10/(mCon.nx-1);
 h = figure;
 while relDif > relDifMax && iter <= iterMax
     if method == 1
@@ -59,9 +59,9 @@ while relDif > relDifMax && iter <= iterMax
     disp(['Iteration ',num2str(iter),' : Compliance = ',...
         num2str(C(iter+1)), ' ; Gradient norm = ',num2str(norm(dCdx))])
 
-    if ~mod(iter,5)
-        h = densityPlot(h);
-    end
+%     if ~mod(iter,5)
+%         h = densityPlot(h);
+%     end
     
     for i = 1:nd:length(dCdx)
         nm = ceil(i/nd);
@@ -77,12 +77,12 @@ while relDif > relDifMax && iter <= iterMax
         mnodes(nm).x(1) = mnodes(nm).x(1) + v(i)*dt;
         mnodes(nm).x(2) = mnodes(nm).x(2) + v(i+1)*dt;
         if distrType >= 2
-            v(i+2) = (1-c)*v(i+2)-dt*dCs(3);
+            v(i+2) = (1-c)*v(i+2)-dt*dCdx(i+2);
             mnodes(nm).theta = mnodes(nm).theta + v(i+2)*dt;
         end
         if distrType == 3
-            v(i+3) = (1-c)*v(i+3)-dt*dCs(4);
-            v(i+4) = (1-c)*v(i+4)-dt*dCs(5);
+            v(i+3) = (1-c)*v(i+3)-dt*dCdx(i+3);
+            v(i+4) = (1-c)*v(i+4)-dt*dCdx(i+4);
             mnodes(nm).l(1) = mnodes(nm).l(1) + v(i+3)*dt;
             mnodes(nm).l(2) = mnodes(nm).l(2) + v(i+4)*dt;
         end

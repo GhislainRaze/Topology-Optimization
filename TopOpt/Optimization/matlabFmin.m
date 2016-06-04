@@ -21,11 +21,6 @@ searchdir = [];
  
 
 
-if distrType == 3
-    nd = 5;
-else
-    nd = distrType+1;
-end
 
 
 % call optimization
@@ -37,19 +32,7 @@ elseif method == 2
 end
 disp('Unit matrices computed')
 
-
-x0 = zeros(nd*length(mnodes),1);
-for i = 1 : length(mnodes)
-    x0(nd*(i-1)+1) = mnodes(i).x(1);
-    x0(nd*(i-1)+2) = mnodes(i).x(2); 
-    if distrType >= 2
-        x0(nd*(i-1)+3) = mnodes(i).theta;
-    end
-    if distrType == 3
-        x0(nd*(i-1)+4) = mnodes(i).l(1);
-        x0(nd*i) = mnodes(i).l(2);
-    end
-end
+x0 = mnodesToVector(mnodes,distrType);
 disp('Material distribution initialized')
 
 opt = optimset('GradObj','on','Display','iter',...
