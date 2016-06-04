@@ -13,6 +13,7 @@
 % * _mCon_: the discretization constants
 % * _mmCon_: the material distribution constants
 % * _bcCon_: the boundary conditions constants
+% * _oCon_: the optimization constants
 %
 % * _nodes_: the nodes constants
 % * _mnodes_: the mass nodes constants
@@ -22,6 +23,6 @@
 %
 % * _mTot_: the total mass of the structure
 
-global pCon mCon mmCon bcCon
+global pCon mCon mmCon bcCon oCon
 global nodes mnodes bnodes cells bcells 
 global mTot

@@ -36,8 +36,8 @@
 function [mmCon,mnodes] = massConstants(pCon,mCon)
 
     % Meshless mass constants
-    mmCon.nx=9*pCon.Lx;                             % Number of mass nodes along the width
-    mmCon.ny=3*pCon.Ly;                             % Number of mass nodes along the height
+    mmCon.nx=3*pCon.Lx;                             % Number of mass nodes along the width
+    mmCon.ny=1*pCon.Ly;                             % Number of mass nodes along the height
     mmCon.n=mmCon.nx*mmCon.ny;                      % Total number of mass nodes
     mmCon.d=1.5;                                    % Relative smoothing length
     mmCon.m = mCon.m;                               % Number of integration cells
@@ -48,6 +48,11 @@ function [mmCon,mnodes] = massConstants(pCon,mCon)
     % Optimization parameters
     mmCon.p = 3;                                    % Power law for the stiffness
     mmCon.filter = true;                            % Density filter
+    mmCon.continuation = true;
+    if mmCon.continuation
+        mmCon.pMax = mmCon.p;
+        mmCon.p = 1;
+    end
     
     % Nodes distribution parameters
     mmCon.Lx = pCon.Lx;                           % Rectangle length
