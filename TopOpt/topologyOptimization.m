@@ -14,6 +14,7 @@ clc
 
 
 addpath('Optimization/');
+addpath('Optimization/LineSearch/');
 addpath('Constants/');
 addpath('Discretization/');
 addpath('MaterialDistribution/');
@@ -23,7 +24,7 @@ addpath('IIEFG/');
 addpath('Plots/');
 
 GlobalConst;
-
+optimizationConstants;
 %% Method, material distribution and optimization algorithm
 % The elastic problem can be discretized thanks to three different methods
 % : the Element-Free Galerkin (EFG) method, the Finite Element Method (FEM)
@@ -31,9 +32,9 @@ GlobalConst;
 %
 % The material distribution 
 methodChoice = 2;           % 1: EFG, 2: FEM, 3: IIEFG 
-massChoice = 1;             % 1: Mass nodes, 2: Undeformable structural 
+massChoice = 2;             % 1: Mass nodes, 2: Undeformable structural 
                             % members, 3: Deformable structural members 
-optimChoice = 1;            % 1: Overvelde's algorithm, 2: fminunc or 
+optimChoice = 4;            % 1: Overvelde's algorithm, 2: fminunc or 
                             % fmincon, 3: Genetic algorithm
                             
                             
@@ -42,9 +43,8 @@ optimChoice = 1;            % 1: Overvelde's algorithm, 2: fminunc or
 plotInitial = true;         % Plots the initial mass distribution
 plotFinal = true;           % Plots the final mass distribution
 plotMesh = true;            % Plots the discretization mesh
-makeMovie = false;          % Makes a movie of the evolution of the 
-                            % material distribution (slows down the
-                            % algorithms)
+plotIter = true;            % Plots the configuration at given iteration
+plotCompliance = true;      % Plots the compliance evolution
 
 
 
@@ -63,19 +63,43 @@ switch optimChoice
     case 2
         disp('=======================================================')
         disp('                  TOPOLOGY OPTIMIZATION                ')
-        disp('                      Matlab fminunc                   ')  
+        disp('                    Steepest descent                   ')  
+        methodDisplay(methodChoice)
+        massDisplay(massChoice)
+        disp('=======================================================')
+        steepestDescent(massChoice,methodChoice);
+    case 3
+        disp('=======================================================')
+        disp('                  TOPOLOGY OPTIMIZATION                ')
+        disp('                  Conjugated gradients                 ')
+        methodDisplay(methodChoice)
+        massDisplay(massChoice)
+        disp('=======================================================')
+        conjugatedGradients(massChoice,methodChoice);
+    case 4
+        disp('=======================================================')
+        disp('                  TOPOLOGY OPTIMIZATION                ')
+        disp('                    Quasi-Newton BFGS                  ')
+        methodDisplay(methodChoice)
+        massDisplay(massChoice)
+        disp('=======================================================')
+        quasiNewtonBFGS(massChoice,methodChoice);
+    case 5
+        disp('=======================================================')
+        disp('                  TOPOLOGY OPTIMIZATION                ')
+        disp('                  Matlab fminunc/fmincon               ')  
         methodDisplay(methodChoice)
         massDisplay(massChoice)
         disp('=======================================================')
         matlabFminunc(massChoice,methodChoice);
-    case 3
+    case 6
         disp('=======================================================')
         disp('                  TOPOLOGY OPTIMIZATION                ')
         disp('                 Matlab genetic algorithm              ')
         methodDisplay(methodChoice)
         massDisplay(massChoice)
         disp('=======================================================')
-        matlabGa(massChoice);
+        matlabGa(massChoice,methodChoice);    
 end
 
 
