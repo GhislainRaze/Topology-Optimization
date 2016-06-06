@@ -23,10 +23,11 @@
 %
 %
 % The mass nodes can therefore be distributed in a rectangle of dimensions
-% _mmCon.Lx * mmCon.Ly_ or randomly throughout the domain. The nodal masses
-% _mmCon.mi_ are set so that the density is approximatively equal to 1
-% inside the rectangle, and so that the total mass of the structure is
-% approximatively equal to _mmCon.Lx * mmCon.Ly_.
+% _mmCon.Lx * mmCon.Ly_, randomly throughout the domain, or randomly
+% shifted from their position in the rectangle by a maximum radius
+% _mmCon.drn_. The nodal masses _mmCon.mi_ are set so that the density is
+% approximately equal to 1 inside the rectangle, and so that the total mass
+% of the structure is approximately equal to _mmCon.Lx * mmCon.Ly_.
 %
 % The function outputs are :
 %
@@ -36,23 +37,16 @@
 function [mmCon,mnodes] = massConstants(pCon,mCon)
 
     % Meshless mass constants
-    mmCon.nx=3*pCon.Lx;                             % Number of mass nodes along the width
-    mmCon.ny=1*pCon.Ly;                             % Number of mass nodes along the height
+    mmCon.nx=4*pCon.Lx;                             % Number of mass nodes along the width
+    mmCon.ny=2*pCon.Ly;                             % Number of mass nodes along the height
     mmCon.n=mmCon.nx*mmCon.ny;                      % Total number of mass nodes
     mmCon.d=1.5;                                    % Relative smoothing length
     mmCon.m = mCon.m;                               % Number of integration cells
     mmCon.rhoMin = 1e-6;                            % Minimum density
     mmCon.rhoMax = 1.1;                             % Maximum density
-    mmCon.distrType = 3;                            % Distribution type (1: in a rectangle, 2: random, 3: semi-random)
+    mmCon.distrType = 1;                            % Distribution type (1: in a rectangle, 2: random, 3: semi-random)
     
-    % Optimization parameters
-    mmCon.p = 3;                                    % Power law for the stiffness
-    mmCon.filter = true;                            % Density filter
-    mmCon.continuation = true;
-    if mmCon.continuation
-        mmCon.pMax = mmCon.p;
-        mmCon.p = 1;
-    end
+
     
     % Nodes distribution parameters
     mmCon.Lx = pCon.Lx;                           % Rectangle length
