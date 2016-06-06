@@ -1,4 +1,4 @@
-%% FEM Compliance
+%% EFG Compliance
 %
 % Code developed by Ghislain Raze under the supervision of Prof. Joseph
 % Morlier
@@ -8,7 +8,7 @@
 % <http://www.overvelde.com>
 %
 % Function used to provide the compliance and its sensitivities based on a
-% FEM analysis to the _fminunc_, _fmincon_ or _ga_ Matlab optimizers.
+% EFG method to the _fminunc_, _fmincon_ or _ga_ Matlab optimizers.
 %
 % The inputs are
 %
@@ -16,15 +16,16 @@
 % * _distrType_: the material distribution type
 %
 % Furthermore one computes once and for all the following inputs (which can
-% be obtained thanks to FEMUnitMatrices)
+% be obtained thanks to EFGUnitMatrices)
 %
 % * _Ke_: the unit stiffness matrices
 % * _f_: the nodal force vector
-% * _ubar_: the imposed nodal displacements
+% * _G_: the lagrangian multipliers matrix
+% * _q_: the second member associated with lagrangian multipliers
 % * _H_: the filter convolution matrix (optional)
 % * _Hs_: the sum of the filter convolution matrix lines (optional)
 
-function [C,dCdx,u] = complianceFEM(xmnodes,distrType,Ke,f,ubar,H,Hs)
+function [C,dCdx,u] = complianceEFG(xmnodes,distrType,Ke,f,G,q,H,Hs)
 
     GlobalConst
     if distrType == 3
@@ -46,9 +47,10 @@ function [C,dCdx,u] = complianceFEM(xmnodes,distrType,Ke,f,ubar,H,Hs)
             mnodes(i).m = rm*mnodes(i).l(1)*mnodes(i).l(2);
         end
     end
-    if nargin < 6
-        [u,C,dCdx]=FEM(Ke,f,ubar,distrType);
-    elseif nargin == 7
-        [u,C,dCdx]=FEM(Ke,f,ubar,distrType,H,Hs);
+    if nargin < 7
+        [u,C,dCdx]=EFG(Ke,f,G,q,distrType);
+    elseif nargin == 8
+        [u,C,dCdx]=EFG(Ke,f,G,q,distrType,H,Hs);
     end
+
 end

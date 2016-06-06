@@ -1,3 +1,14 @@
+%% Mass nodes to vector
+%
+% Code developed by Ghislain Raze under the supervision of Prof. Joseph
+% Morlier
+%
+% Initial code by Johannes T. B. Overvelde
+%
+% <http://www.overvelde.com>
+%
+% Converts the mass nodes data to a vector to simplify the optimization
+% algorithms syntax.
 
 function x0 = mnodesToVector(mnodes,distrType)
 
