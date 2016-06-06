@@ -61,5 +61,4 @@
     [hx,hy] = format_ticks(gca,{'\fontsize{20}0','\fontsize{20}L_x'},...
     {'\fontsize{20}-L_y/2','\fontsize{20}0','\fontsize{20}L_y/2'});
     set(gca,'fontsize',20)
-    %axis([-0.001*pCon.Lx +1.001*pCon.Lx -1.001*pCon.Ly/2 1.001*pCon.Ly/2])
     title('Discretization')
