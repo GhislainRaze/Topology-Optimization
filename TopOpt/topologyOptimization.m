@@ -15,6 +15,8 @@ clc
 
 addpath('Optimization/');
 addpath('Optimization/LineSearch/');
+addpath('Optimization/Optimizers/');
+addpath('Optimization/Scripts/');
 addpath('Constants/');
 addpath('Discretization/');
 addpath('MaterialDistribution/');
@@ -22,6 +24,7 @@ addpath('EFG/');
 addpath('FEM/');
 addpath('IIEFG/');
 addpath('Plots/');
+addpath('Display/');
 
 GlobalConst;
 optimizationConstants;
@@ -34,7 +37,7 @@ optimizationConstants;
 methodChoice = 2;           % 1: EFG, 2: FEM, 3: IIEFG 
 massChoice = 2;             % 1: Mass nodes, 2: Undeformable structural 
                             % members, 3: Deformable structural members 
-optimChoice = 4;            % 1: Overvelde's algorithm, 2: fminunc or 
+optimChoice = 1;            % 1: Overvelde's algorithm, 2: fminunc or 
                             % fmincon, 3: Genetic algorithm
                             
                             
@@ -43,8 +46,10 @@ optimChoice = 4;            % 1: Overvelde's algorithm, 2: fminunc or
 plotInitial = true;         % Plots the initial mass distribution
 plotFinal = true;           % Plots the final mass distribution
 plotMesh = true;            % Plots the discretization mesh
-plotIter = true;            % Plots the configuration at given iteration
+plotDEvolution = true;      % Plots the density at given iteration
+plotCEvolution = true;      % Plots the elements contour at given iteration
 plotCompliance = true;      % Plots the compliance evolution
+plotDeformed = true;        % Plots the final deformed configuration
 
 
 
@@ -59,7 +64,7 @@ switch optimChoice
         methodDisplay(methodChoice)
         massDisplay(massChoice)
         disp('=======================================================')
-        overvelde(massChoice,methodChoice);
+        history = overvelde(massChoice,methodChoice);
     case 2
         disp('=======================================================')
         disp('                  TOPOLOGY OPTIMIZATION                ')
@@ -67,7 +72,7 @@ switch optimChoice
         methodDisplay(methodChoice)
         massDisplay(massChoice)
         disp('=======================================================')
-        steepestDescent(massChoice,methodChoice);
+        history = steepestDescent(massChoice,methodChoice);
     case 3
         disp('=======================================================')
         disp('                  TOPOLOGY OPTIMIZATION                ')
@@ -75,7 +80,7 @@ switch optimChoice
         methodDisplay(methodChoice)
         massDisplay(massChoice)
         disp('=======================================================')
-        conjugatedGradients(massChoice,methodChoice);
+        history = conjugatedGradients(massChoice,methodChoice);
     case 4
         disp('=======================================================')
         disp('                  TOPOLOGY OPTIMIZATION                ')
@@ -83,7 +88,7 @@ switch optimChoice
         methodDisplay(methodChoice)
         massDisplay(massChoice)
         disp('=======================================================')
-        quasiNewtonBFGS(massChoice,methodChoice);
+        history = quasiNewtonBFGS(massChoice,methodChoice);
     case 5
         disp('=======================================================')
         disp('                  TOPOLOGY OPTIMIZATION                ')
@@ -91,7 +96,7 @@ switch optimChoice
         methodDisplay(methodChoice)
         massDisplay(massChoice)
         disp('=======================================================')
-        matlabFminunc(massChoice,methodChoice);
+        history = matlabFminunc(massChoice,methodChoice);
     case 6
         disp('=======================================================')
         disp('                  TOPOLOGY OPTIMIZATION                ')
@@ -99,7 +104,7 @@ switch optimChoice
         methodDisplay(methodChoice)
         massDisplay(massChoice)
         disp('=======================================================')
-        matlabGa(massChoice,methodChoice);    
+        history = matlabGa(massChoice,methodChoice);    
 end
 
-
+endPlots;
