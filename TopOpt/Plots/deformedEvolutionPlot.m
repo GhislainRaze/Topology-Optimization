@@ -22,7 +22,7 @@ function deformedEvolutionPlot(history,distrType,method,threshold,np)
         np = 9;
     end
     h = figure;
-    mag = 5;
+    mag = 0.01;
     iterMax = length(history.C)-1;
     data = deformedComputation(history.x(:,end),distrType,...
         history.u(:,end-1:end),method,threshold,np);

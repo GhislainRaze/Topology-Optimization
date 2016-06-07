@@ -40,8 +40,10 @@
             x=[x; bcells(i).int(j).x(1) bcells(i).int(j).x(2)];
         end
     end
-    plot(x(:,1),x(:,2),'.','color','r','linewidth',2,'markersize',16)
-    x=[];
+    if ~isempty(x)
+        plot(x(:,1),x(:,2),'.','color','r','linewidth',2,'markersize',16)
+        x=[];
+    end
     if mCon.mp~=0
         for i=mCon.mb+1:mCon.mb+mCon.mp
             for j=1:bcells(i).ni
@@ -52,6 +54,9 @@
     end
     x=[nodes.x]';
     plot(x(:,1),x(:,2),'o','color','b','linewidth',2)
+    if methodChoice == 2
+        plot(x(bnodes(1,:),1),x(bnodes(1,:),2),'.','color','r','linewidth',2,'markersize',16)
+    end
     x=[mnodes.x]';
     plot(x(:,1),x(:,2),'o','color','m','linewidth',2)
     set(gca,'XTick',[0;pCon.Lx])
