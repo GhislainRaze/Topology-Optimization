@@ -43,7 +43,7 @@ end
 
 % Variables initialization
 x0 = mnodesToVector(mnodes,distrType);
-[C0,dCdx0] = objectiveFunction(x0);
+[C0,dCdx0,u0] = objectiveFunction(x0);
 s0 = - dCdx0/norm(dCdx0);
 
 % Display information
@@ -53,3 +53,5 @@ disp(['Iteration ',num2str(iter),' : Compliance = ',...
 % History initialization
 history.x = x0;
 history.C = C0;
+history.u = u0;
+history.m = mTot;

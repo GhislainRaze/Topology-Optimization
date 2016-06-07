@@ -12,10 +12,9 @@
 % modified.
 
 
-if oCon.filter && (iter == oCon.filterIter || abs(relDif) < oCon.relTolFilter) || ...
-   oCon.filter && abs(relDif) < oCon.relTol && ~filterEnabled 
+if oCon.filter && (iter == oCon.filterIter || abs(relDif) < oCon.relTolFilter) && ~filterEnabled 
     
-    [H,Hs] = filterInitialization(cells,mCon.nG,mmCon.rmin);
+    [H,Hs] = filterInitialization(cells,mCon.nG,oCon.rmin);
     if method == 1
         objfun = @(x) complianceEFG(x,distrType,Ke,f,G,q,H,Hs);
     elseif method == 2
