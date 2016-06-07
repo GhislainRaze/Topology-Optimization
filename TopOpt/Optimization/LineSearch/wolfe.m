@@ -23,16 +23,22 @@
 %
 % with $m_2 = 0.15$. The inputs are
 %
-% * _x0_ and _x1_: two starting points
-% * _f0_: the function value at point _x0_
-% * _g0_: the gradient at point _x0_
+% * _x0_: the starting point
+% * _f0_: the function value at _x0_
+% * _g0_: the gradient value at _x0_
+% * _x1_: a point indicating the search direction (_x1-x0_)
+% * _objfun_: the objective function
+% * _iterMax_: the maximum number of iterations (optional, default value =
+% 100)
 
 
-function  [xs,fs,gs] = wolfe(x0,f0,g0,x1,objfun)
-
+function  [xs,fs,gs,us] = wolfe(x0,f0,g0,x1,objfun,iterMax)
+    
+    if nargin < 6
+        iterMax = 20;
+    end
     m1 = 0.01;
     m2 = 0.15;
-    iterMax = 10;
     minimum = false;
     iter = 0;
     s0 = (x1-x0)/norm(x1-x0);
@@ -51,7 +57,7 @@ function  [xs,fs,gs] = wolfe(x0,f0,g0,x1,objfun)
         ls = cubicApproximation(0,norm(x1-x0),f0,f1,gp0,gp1);
         xs = x0+ls*s0;
         
-        [fs,gs] = objfun(xs);
+        [fs,gs,us] = objfun(xs);
         gps = gs'*s0;
         
         if fs > f00+m1*ls*gp00      % First Wolfe criterion
