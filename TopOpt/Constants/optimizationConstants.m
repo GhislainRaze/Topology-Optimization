@@ -11,12 +11,24 @@
 % optimization constants are
 %
 % * _oCon.iterMax_: the maximum number of iteration
-% * _oCon.relTol_: 
-% * _oCon.xTol_: 
-% * _oCon.dg_: 
-% * _oCon.trueMinimum_: 
-% * _oCon.iterMinimum_:
+% * _oCon.relTol_: the maximum tolerance on the relative compliance change
+% * _oCon.xTol_: the maximum tolerance on the variables change
+% * _oCon.dg_: the initial step length
 %
+% * _oCon.trueMinimum_: true if the true minimum is searched
+% * _oCon.iterMinimum_: the number of iterations to search the minimum
+% * _oCon.tolMimimum_: the relative tolerance on the minimum derivative
+% * _oCon.iterWolfe_: the iterations to find the minimum according to Wolfe
+% criteria
+%
+% * _oCon.p_: the intermediate density penalization factor
+% * _oCon.continuation_: true if the continuation strategy is used
+%
+% * _oCon.filter_: true if a filter is used
+% * _oCon.rmin_: radius under which the mass variations are filtered
+% * _oCon.filterIter_: number of iterations after which the filter is enabled
+% * _oCon.relTolFilter_: maximum tolerance on the relative compliance change
+% after which the filter is enabled
 
 % Algorithm parameters
 oCon.iterMax = 1000;                            % Maximum number of iteration
@@ -24,10 +36,10 @@ oCon.relTol = 1e-6;                             % Maximum tolerance on the relat
                                                 % compliance change
 oCon.xTol = 1e-4;                               % Maximum tolerance on the variables
                                                 % change
-oCon.dg = 0.01;                                 % Initial step size
+oCon.dg = 1;                                    % Initial step size
 
 % Linesearch parameters
-oCon.trueMinimum = false;                       % Search for true minimum
+oCon.trueMinimum = true;                       % Search for true minimum
 oCon.iterMinimum = 50;                          % Number of iterations for the search
                                                 % of a true minimum
 oCon.tolMinimum = 1e-3;                         % Relative tolerance for the minimum derivative
@@ -43,11 +55,11 @@ if oCon.continuation
 end
 
 % Filtering
-oCon.filter = false;                            % Density filter
+oCon.filter = true;                            % Density filter
 oCon.rmin = 0.3;                                % Radius under which the variations
                                                 % are filtered
-oCon.filterIter = 200;                          % Number of iterations after which the
+oCon.filterIter = 100;                          % Number of iterations after which the
                                                 % filter is enabled
-oCon.relTolFilter = 1e-5;                       % Maximum tolerance on the relative
+oCon.relTolFilter = 1e-6;                       % Maximum tolerance on the relative
                                                 % compliance change after which the
                                                 % filter is enabled
