@@ -18,6 +18,8 @@ deltaX = max(abs(x0-x0p));
 x0 = x0p;
 history.C = [history.C, C0];
 history.x = [history.x, x0];
+history.u = [history.u, u0];
+history.m = [history.m, mTot];
 
 if oCon.continuation
     oCon.p = continuation(oCon.p,iter,oCon.pMax);
