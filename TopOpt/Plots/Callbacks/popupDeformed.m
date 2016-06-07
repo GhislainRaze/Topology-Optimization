@@ -1,4 +1,4 @@
-%% Button callback function for the deformed plot
+%% Popup menu callback function for the deformed plot
 %
 % Code developed by Ghislain Raze under the supervision of Prof. Joseph
 % Morlier
@@ -7,11 +7,11 @@
 %
 % <http://www.overvelde.com>
 %
-% Callback function for the button of the deformed configuration evolution 
-% plot.
+% Callback function for the popup menu of the deformed configuration
+% evolution plot.
 
-function buttonDeformed(button,event,data,popup,editer)
-
+function popupDeformed(popup,event,data,editer)
+        
     n = get(popup, 'Value');
     [mag,success] = str2num(get(editer, 'String'));
     if success
