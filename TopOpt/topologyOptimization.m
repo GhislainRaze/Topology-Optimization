@@ -12,7 +12,7 @@ close all
 clc
 
 
-
+%% Build path
 addpath('Optimization/');
 addpath('Optimization/LineSearch/');
 addpath('Optimization/Optimizers/');
@@ -24,6 +24,7 @@ addpath('EFG/');
 addpath('FEM/');
 addpath('IIEFG/');
 addpath('Plots/');
+addpath('Plots/Callbacks/');
 addpath('Display/');
 
 GlobalConst;
@@ -37,11 +38,13 @@ optimizationConstants;
 methodChoice = 2;           % 1: EFG, 2: FEM, 3: IIEFG 
 massChoice = 2;             % 1: Mass nodes, 2: Undeformable structural 
                             % members, 3: Deformable structural members 
-optimChoice = 1;            % 1: Overvelde's algorithm, 2: fminunc or 
-                            % fmincon, 3: Genetic algorithm
+optimChoice = 3;            % 1: Overvelde's algorithm, 2: steepest descent,
+                            % 3: conjugated gradients, 4: quasi Newton
+                            % BFGS, 5: Matlab fminunc or fmincon, 5: Matlab
+                            % ga.
                             
                             
-%% Plots and movies
+%% Plots
 
 plotInitial = true;         % Plots the initial mass distribution
 plotFinal = true;           % Plots the final mass distribution
@@ -49,6 +52,7 @@ plotMesh = true;            % Plots the discretization mesh
 plotDEvolution = true;      % Plots the density at given iteration
 plotCEvolution = true;      % Plots the elements contour at given iteration
 plotCompliance = true;      % Plots the compliance evolution
+plotMass = true;            % Plots the mass evolution
 plotDeformed = true;        % Plots the final deformed configuration
 
 
@@ -107,4 +111,5 @@ switch optimChoice
         history = matlabGa(massChoice,methodChoice);    
 end
 
+%% Postprocessing
 endPlots;
