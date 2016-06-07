@@ -41,7 +41,14 @@
 % (1-\rho_{Min})\rho^{as}(\rho(\mathbf{x})) $$
 
 function [rhoA,drhoAdx] = asymptoticDensity(xj,xi,thetai,dmi,mi,rhoMin,...
-    rhoMax,distrType)
+    rhoMax,distrType,computeDerivatives)
+
+    if nargin < 8
+        distrType = 1;
+    end
+    if nargin < 9
+        computeDerivatives = true;
+    end
 
     nn = size(xi,2);
     
@@ -70,21 +77,22 @@ function [rhoA,drhoAdx] = asymptoticDensity(xj,xi,thetai,dmi,mi,rhoMin,...
         
         
         rho = rho+mi(mm)*wi;
-        
-        drhodx(nd*(mm-1)+1) = mi(mm)*(-ci*dwidx +...
-                                             si*dwidy);
-        drhodx(nd*(mm-1)+2) = -mi(mm)*(si*dwidx +...
-                                             ci*dwidy);
-        if distrType >= 2
-            drhodx(nd*(mm-1)+3) = mi(mm)*...
-                ((-sxi+cyi)*dwidx -(cxi+syi)*dwidy);
-        end
-        if distrType == 3
-            mui = mi(mm)/(4*dmi(1,mm)*dmi(2,mm));
-            drhodx(nd*(mm-1)+4) = (2*mui*dmi(2,mm)*wi -...
-                                    mi(mm)*(wi+(cxi+syi)*dwidx)/(2*dmi(1,mm)));
-            drhodx(nd*mm) = (2*mui*dmi(1,mm)*wi -...
-                                    mi(mm)*(wi+(-sxi+cyi)*dwidy)/(2*dmi(2,mm)));
+        if computeDerivatives
+            drhodx(nd*(mm-1)+1) = mi(mm)*(-ci*dwidx +...
+                                                 si*dwidy);
+            drhodx(nd*(mm-1)+2) = -mi(mm)*(si*dwidx +...
+                                                 ci*dwidy);
+            if distrType >= 2
+                drhodx(nd*(mm-1)+3) = mi(mm)*...
+                    ((-sxi+cyi)*dwidx -(cxi+syi)*dwidy);
+            end
+            if distrType == 3
+                mui = mi(mm)/(4*dmi(1,mm)*dmi(2,mm));
+                drhodx(nd*(mm-1)+4) = (2*mui*dmi(2,mm)*wi -...
+                                        mi(mm)*(wi+(cxi+syi)*dwidx)/(2*dmi(1,mm)));
+                drhodx(nd*mm) = (2*mui*dmi(1,mm)*wi -...
+                                        mi(mm)*(wi+(-sxi+cyi)*dwidy)/(2*dmi(2,mm)));
+            end
         end
     end
     
@@ -95,13 +103,15 @@ function [rhoA,drhoAdx] = asymptoticDensity(xj,xi,thetai,dmi,mi,rhoMin,...
     
     rhoA = a*rho./(rho.^b+a);
     
-    
-    % Asymptotic density derivatives
-    drhoAdrho = (a*(1-b)*rho.^b + a^2)./((rho.^b+a).^2);
-    drhoAdx = drhoAdrho.*drhodx;
-    
     % Minimum density
     rhoA = rhoMin + (1-rhoMin)*rhoA;
-    drhoAdx = (1-rhoMin)*drhoAdx;
+    
+    % Density derivatives
+    if computeDerivatives
+        drhoAdrho = (a*(1-b)*rho.^b + a^2)./((rho.^b+a).^2);
+        drhoAdx = drhoAdrho.*drhodx;
+        drhoAdx = (1-rhoMin)*drhoAdx;
+    end
+    
 
 end
