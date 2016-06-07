@@ -42,7 +42,7 @@ function [mmCon,mnodes] = massConstants(pCon,mCon)
     mmCon.n=mmCon.nx*mmCon.ny;                      % Total number of mass nodes
     mmCon.d=1.5;                                    % Relative smoothing length
     mmCon.m = mCon.m;                               % Number of integration cells
-    mmCon.rhoMin = 1e-6;                            % Minimum density
+    mmCon.rhoMin = 1e-3;                            % Minimum density
     mmCon.rhoMax = 1.1;                             % Maximum density
     mmCon.distrType = 1;                            % Distribution type (1: in a rectangle, 2: random, 3: semi-random)
     

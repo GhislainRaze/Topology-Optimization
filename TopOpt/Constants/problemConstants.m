@@ -22,12 +22,12 @@ function pCon = problemConstants()
     %Problem definition constants
     pCon.Lx=1;                                      % Problem domain length
     pCon.Ly=2;                                      % Problem domain height
-    pCon.E=10;                                       % Elasticiy modulus
+    pCon.E=1;                                       % Elasticiy modulus
     pCon.nu=0.3;                                    % Poisson's ratio
-    pCon.D=pCon.E/(1-pCon.nu^2)*[1       pCon.nu 0; % Plain stress elasticy matrix
+    pCon.D=pCon.E/(1-pCon.nu^2)*[1       pCon.nu 0; % Plane stress stiffness matrix
                                  pCon.nu 1       0; 
                                  0       0       (1-pCon.nu)/2];
-    pCon.P = 0.1;
+    pCon.P = 1;
     pCon.I = pCon.Ly^3/12;
     
     %% Natural boundary conditions
@@ -37,14 +37,14 @@ function pCon = problemConstants()
     
     % Line forces
     pCon.lLoad=[];
-    pCon.lLoad(1).x = [pCon.Lx, -pCon.Ly/10;        % Begining point of the line
-                       pCon.Lx, pCon.Ly/10];        % End point of the line
-    pCon.lLoad(1).F = @(x) [0;-pCon.P];      % Associated force law
+%     pCon.lLoad(1).x = [pCon.Lx, -pCon.Ly/10;        % Begining point of the line
+%                        pCon.Lx, pCon.Ly/10];        % End point of the line
+%     pCon.lLoad(1).F = @(x) [0;-pCon.P];      % Associated force law
     
     % Point forces
     pCon.pLoad = [];
-%     pCon.pLoad(1).x = [pCon.Lx ; -pCon.Ly/2];
-%     pCon.pLoad(1).F = [0 ; -pCon.P];
+    pCon.pLoad(1).x = [pCon.Lx ;0];
+    pCon.pLoad(1).F = [0 ; -pCon.P];
     %% Essential boundary conditions
     
     % Line boundary conditions

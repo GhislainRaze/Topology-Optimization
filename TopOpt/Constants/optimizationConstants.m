@@ -36,7 +36,7 @@ oCon.relTol = 1e-6;                             % Maximum tolerance on the relat
                                                 % compliance change
 oCon.xTol = 1e-4;                               % Maximum tolerance on the variables
                                                 % change
-oCon.dg = 1;                                    % Initial step size
+oCon.dg = 0.01;                                  % Initial step size
 
 % Linesearch parameters
 oCon.trueMinimum = true;                       % Search for true minimum
