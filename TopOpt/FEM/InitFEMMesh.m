@@ -1,4 +1,4 @@
-% Finite Element Method (FEM) mesh initialization
+%% Finite Element Method (FEM) mesh initialization
 %
 % Code developed by Ghislain Raze under the supervision of Prof. Joseph
 % Morlier
@@ -24,7 +24,7 @@ pCon = problemConstants();
 mCon.addCells = 0;                          % Background mesh domain 
                                             % multiplication factor
 mCon.mx=9*pCon.Lx;                          %Number of elements along the width
-mCon.my=6*pCon.Ly;                          %Number of elements along the height
+mCon.my=9*pCon.Ly;                          %Number of elements along the height
 mCon.pn=1;                                  %Element degree (1: Q4, 2: Q8, 3: Q12)
 mCon.nx=mCon.pn*mCon.mx+1+2*mCon.addCells;  % Number of discretization nodes along the width
 mCon.ny=mCon.pn*mCon.my+1+2*mCon.addCells;  % Number of discretization nodes along the height
@@ -293,19 +293,19 @@ while ag==1
     dx2 = [cells.dx]/2;
     for j=1:mCon.mb+mCon.mp
         for k=1:bcells(j).ni
-            bcells(j).int(k).nec=celllabel(and(and(bcells(j).int(k).x(1)>=x2(1,:)-dx2(1,:),bcells(j).int(k).x(1)<x2(1,:)+dx2(1,:)),...
-                and(bcells(j).int(k).x(2)>=x2(2,:)-dx2(2,:),bcells(j).int(k).x(2)< x2(2,:)+dx2(2,:))));
-            % Top boundary
-            bcells(j).int(k).nec=[bcells(j).int(k).nec , tcelllabel(and(and(bcells(j).int(k).x(1)>=x2(1,mCon.my:mCon.my:end)-dx2(1,mCon.my:mCon.my:end),...
-                bcells(j).int(k).x(1)<x2(1,mCon.my:mCon.my:end)+dx2(1,mCon.my:mCon.my:end)),...
-                abs(bcells(j).int(k).x(2)-(x2(2,mCon.my:mCon.my:end)+dx2(2,mCon.my:mCon.my:end)))<tol))];
-            % Right boundary
-            bcells(j).int(k).nec=[bcells(j).int(k).nec , rcelllabel(and(and(bcells(j).int(k).x(2)>=x2(2,end-mCon.my+1:end)-dx2(2,end-mCon.my+1:end),...
-                bcells(j).int(k).x(2)<x2(2,end-mCon.my+1:end)+dx2(2,end-mCon.my+1:end)),...
-                abs(bcells(j).int(k).x(1)-(x2(1,end-mCon.my+1:end)+dx2(1,end-mCon.my+1:end)))<tol))];
-            % Top right corner
-            bcells(j).int(k).nec=[bcells(j).int(k).nec , mCon.m(and(abs(bcells(j).int(k).x(1)- x2(1,end)+dx2(1,end))<tol,...
-                abs(bcells(j).int(k).x(2)- x2(2,end)+dx2(2,end))<tol))];
+            bcells(j).int(k).nec=celllabel(and(and(bcells(j).int(k).x(1)>=x2(1,:)-dx2(1,:)-tol,bcells(j).int(k).x(1)<=x2(1,:)+dx2(1,:)+tol),...
+                and(bcells(j).int(k).x(2)>=x2(2,:)-dx2(2,:)-tol,bcells(j).int(k).x(2)<= x2(2,:)+dx2(2,:)+tol)));
+%             % Top boundary
+%             bcells(j).int(k).nec=[bcells(j).int(k).nec , tcelllabel(and(and(bcells(j).int(k).x(1)>=x2(1,mCon.my:mCon.my:end)-dx2(1,mCon.my:mCon.my:end),...
+%                 bcells(j).int(k).x(1)<x2(1,mCon.my:mCon.my:end)+dx2(1,mCon.my:mCon.my:end)),...
+%                 abs(bcells(j).int(k).x(2)-(x2(2,mCon.my:mCon.my:end)+dx2(2,mCon.my:mCon.my:end)))<tol))];
+%             % Right boundary
+%             bcells(j).int(k).nec=[bcells(j).int(k).nec , rcelllabel(and(and(bcells(j).int(k).x(2)>=x2(2,end-mCon.my+1:end)-dx2(2,end-mCon.my+1:end),...
+%                 bcells(j).int(k).x(2)<x2(2,end-mCon.my+1:end)+dx2(2,end-mCon.my+1:end)),...
+%                 abs(bcells(j).int(k).x(1)-(x2(1,end-mCon.my+1:end)+dx2(1,end-mCon.my+1:end)))<tol))];
+%             % Top right corner
+%             bcells(j).int(k).nec=[bcells(j).int(k).nec , mCon.m(and(abs(bcells(j).int(k).x(1)- x2(1,end)+dx2(1,end))<tol,...
+%                 abs(bcells(j).int(k).x(2)- x2(2,end)+dx2(2,end))<tol))];
         end
     end
     
