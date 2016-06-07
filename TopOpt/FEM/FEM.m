@@ -95,7 +95,7 @@ for ic=1:mCon.m                                         % Iterations over the in
             [mnodes(cells(ic).int(ip).nemn).m],...
             mmCon.rhoMin,mmCon.rhoMax,distrType);
         tic
-        if oCon.filter
+        if filter
             rhoVec((ic-1)*mCon.nG^2+ip) = rho;
         else
             K(en,en)=K(en,en)+rho^oCon.p*Ke{(ic-1)*mCon.nG^2+ip};
@@ -105,7 +105,7 @@ for ic=1:mCon.m                                         % Iterations over the in
         mTot = mTot + rho*cells(ic).J*cells(ic).int(ip).w;
         tm = tm+toc;
         tic
-        if oCon.filter
+        if filter
             drhoVec((ic-1)*mCon.nG^2+ip,emn) = drhodx;
         else
             for i=1:length(emn)
@@ -117,7 +117,7 @@ for ic=1:mCon.m                                         % Iterations over the in
     end
 end
 
-if oCon.filter
+if filter
     % Filtering
     drhoVec = sparse(drhoVec);
     rhoVec = (H*rhoVec)./Hs;
