@@ -26,10 +26,10 @@ function history = quasiNewtonBFGS(distrType,method)
         x1 = x0 +s0*oCon.dg;
 
         if oCon.trueMinimum
-            [x0p,C0p,dCdx0p] = trueMinimum(x0,C0,dCdx0,x1,...
+            [x0p,C0p,dCdx0p,u0] = trueMinimum(x0,C0,dCdx0,x1,...
                 objectiveFunction,oCon.iterMinimum, oCon.tolMinimum);
         else
-            [x0p,C0p,dCdx0p] = wolfe(x0,C0,dCdx0,x1,...
+            [x0p,C0p,dCdx0p,u0] = wolfe(x0,C0,dCdx0,x1,...
                 objectiveFunction,oCon.iterWolfe);
         end
 
@@ -39,7 +39,7 @@ function history = quasiNewtonBFGS(distrType,method)
         gamma = 1/(s0'*y);
         S0 = (I-gamma*(s0*y'))*S0*(I-gamma*(y*s0')) + gamma*s0*s0';
         s0 = -S0*dCdx0p;
-
+        s0 = s0/norm(s0);
         postIteration;
     end
     

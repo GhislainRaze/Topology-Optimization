@@ -30,7 +30,7 @@ function history = overvelde(distrType,method)
     preOptimization;
     c = 0.8;
     x0p = x0;
-    dt = 1/(max(mCon.nx,mCon.ny));
+    dt = 1/(max(mmCon.nx,mCon.ny));
     v = zeros(size(x0));
     while abs(relDif) > oCon.relTol && deltaX > oCon.xTol && iter < oCon.iterMax
             iter = iter+1;
@@ -39,8 +39,10 @@ function history = overvelde(distrType,method)
         x0p = x0 + v*dt;
         
 
-        [C0p,dCdx0p] = objectiveFunction(x0p);
+        [C0p,dCdx0p,u0] = objectiveFunction(x0p);
         postIteration;
+       
+            
     end
 
     postOptimization;
