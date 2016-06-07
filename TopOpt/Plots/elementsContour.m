@@ -13,7 +13,7 @@
 % where the density is half of its maximum value.
 
 function h = elementsContour(x,distrType,h,figureTitle)
-    global pCon mmCon
+    global pCon
 
     if nargin < 2
         distrType = 1;
@@ -30,35 +30,13 @@ function h = elementsContour(x,distrType,h,figureTitle)
     else
         nd = distrType+1;
     end
-    nmn = length(x)/nd;
     
-    xi = zeros(2,nmn);
-    thetai = zeros(1,nmn);
-    dmi = xi;
-    mi = thetai;
+    [xi,thetai,dmi] = mnodesData(nd,x);
     
-    for i = 1:nd:length(x)
-        nn = ceil(i/nd);
-        xi(1,nn) = x(i);
-        xi(2,nn) = x(i+1);
-        if distrType >= 2
-            thetai(nn) = x(i+2);
-        else
-            thetai(nn) = 0;
-        end
-        if distrType ==3
-            dmi(1,nn) = x(i+3);
-            dmi(2,nn) = x(i+4);
-            mi(nn) = x(i+3)*x(i+4)/(mmCon.d^2);
-        else
-            dmi(1:2,nn) = mmCon.dm;
-            mi(nn) = mmCon.mi;
-        end
-    end
     
     cla
     hold on
-    for i = 1 : nmn
+    for i = 1 : length(xi)
     xd = [xi(1,i)+dmi(1,i)/2*cos(thetai(i))-dmi(2,i)/2*sin(thetai(i)),...
         xi(1,i)-dmi(1,i)/2*cos(thetai(i))-dmi(2,i)/2*sin(thetai(i)),...
         xi(1,i)-dmi(1,i)/2*cos(thetai(i))+dmi(2,i)/2*sin(thetai(i)),...
