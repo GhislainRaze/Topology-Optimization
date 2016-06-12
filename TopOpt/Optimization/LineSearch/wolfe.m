@@ -32,7 +32,7 @@
 % 100)
 
 
-function  [xs,fs,gs,us] = wolfe(x0,f0,g0,x1,objectiveFunction,iterMax)
+function  [xs,fs,gs,us] = wolfe(x0,f0,g0,x1,objectiveFunction,iterMax,massC)
     
     if nargin < 6
         iterMax = 20;
@@ -56,9 +56,20 @@ function  [xs,fs,gs,us] = wolfe(x0,f0,g0,x1,objectiveFunction,iterMax)
         
         ls = cubicApproximation(0,norm(x1-x0),f0,f1,gp0,gp1);
         xs = x0+ls*s0;
-        
-        [fs,gs,us] = objectiveFunction(xs);
+        if massC
+            [xs,changedDirection] = checkFeasability(xs,x0);
+            [fs,gs,us] = objectiveFunction(xs);
+            if changedDirection
+                s0 = (xs-x0)/norm(xs-x0);
+                gp0 = g0'*s0;
+                gp1 = g1'*s0;
+            end
+        else
+            [fs,gs,us] = objectiveFunction(xs);
+        end
         gps = gs'*s0;
+        
+        %disp(num2str(fs))
         
         if fs > f00+m1*ls*gp00      % First Wolfe criterion
             x1 = xs;

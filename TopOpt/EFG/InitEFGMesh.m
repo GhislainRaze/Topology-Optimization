@@ -18,7 +18,6 @@ GlobalConst
  
 tic %Mesh timer
 
-pCon = problemConstants();
 
 %Meshless discretization constants
 mCon.addCells = 0;                          % Background mesh domain 

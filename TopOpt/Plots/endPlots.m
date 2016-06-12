@@ -11,6 +11,12 @@
 % algorithm.
 
 
+
+if optimChoice > 4 && (plotMass || plotDeformed)
+   history = retrieveData(history,methodChoice,massChoice); 
+end
+
+
 if plotInitial  
     densityPlot(history.x(:,1),massChoice,figure,'Initial Configuration');
 end
@@ -46,7 +52,7 @@ end
 if plotMass
     figure
     set(gca,'fontsize',20)
-    plot(0:length(history.m)-1,history.m/sum([mnodes.m]),'-r','linewidth',2);
+    plot(0:length(history.m)-1,history.m/mmCon.mMax,'-r','linewidth',2);
     xlim([0 length(history.m)])
     grid on
     xlabel('Iteration')

@@ -27,6 +27,7 @@ function xs = cubicApproximation(x1,x2,f1,f2,g1,g2)
         xs = x1;
     else
         
+        
         b = g1;
         c = 3*(f2-f1)/(x2-x1)^2 - (2*g1+g2)/(x2-x1);
         d = 2*(f1-f2)/(x2-x1)^3 + (g1+g2)/(x2-x1)^2;

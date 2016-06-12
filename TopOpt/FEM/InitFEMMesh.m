@@ -18,13 +18,11 @@ GlobalConst
  
 tic %Mesh timer
 
-pCon = problemConstants();
-
 %Meshless discretization constants
 mCon.addCells = 0;                          % Background mesh domain 
                                             % multiplication factor
-mCon.mx=9*pCon.Lx;                          %Number of elements along the width
-mCon.my=9*pCon.Ly;                          %Number of elements along the height
+mCon.mx=8*pCon.Lx;                          %Number of elements along the width
+mCon.my=4*pCon.Ly;                          %Number of elements along the height
 mCon.pn=1;                                  %Element degree (1: Q4, 2: Q8, 3: Q12)
 mCon.nx=mCon.pn*mCon.mx+1+2*mCon.addCells;  % Number of discretization nodes along the width
 mCon.ny=mCon.pn*mCon.my+1+2*mCon.addCells;  % Number of discretization nodes along the height
@@ -53,6 +51,7 @@ mCon.mp = pCon.npLoad;                      % Total number of point boundary cel
 mCon.drn=1;                                 % Diameter of semi-random distribution
 
 [mmCon,mnodes] = massConstants(pCon,mCon);
+
 
 % %Position in domain for which the final solution is calculated
 % sCon.snx=25;                                %Number of nodes in x direction for which the solution is calculated
@@ -160,6 +159,7 @@ while ag==1
         end
     end
 
+    
 %     %solnodes coordinates
 %     for i=1:sCon.snx
 %         for j=1:sCon.sny
@@ -230,7 +230,32 @@ while ag==1
             bcells(i).int(1).bv = pCon.pLoad(j).F;
         end
     end
-   
+
+%% Clearing holes    
+    
+    for h = 1 : length(pCon.holes)
+        if pCon.holes(h).type == 1                            % Rectangle
+            xdHole = pCon.holes(h).x0 - pCon.holes(h).l/2;
+            xuHole = pCon.holes(h).x0 + pCon.holes(h).l/2;
+            remove = [];
+            for i = 1:mCon.n                            % Removing nodes
+               if min(nodes(i).x > xdHole) && min(nodes(i).x < xuHole)
+                  remove = [remove,i];
+               end
+            end
+            nodes(remove) = [];
+            mCon.n = mCon.n - length(remove);
+            remove = [];
+            for i = 1:mCon.m                            % Removing cells
+                if min(cells(i).x-cells(i).dx/2 < xuHole) && min(cells(i).x+cells(i).dx/2 > xdHole)
+                    remove = [remove,i];
+                end
+            end
+            cells(remove) = [];
+            mCon.m = mCon.m - length(remove);
+        end
+    end
+    
 %% Neighboring relations    
     
     tol = 1e-9;
@@ -268,7 +293,7 @@ while ag==1
        % Imposed displacement law
        for j = 1 : length(newbnodes)
            l = norm(nodes(newbnodes(j)).x' - pCon.lbc(i).x(1,:));
-           ubari = pCon.lbc(i).param(l);
+           ubari = pCon.lbc(i).u(pCon.lbc(i).param(l));
            bnodes = [bnodes, [newbnodes(j) ; ubari(1) ; ubari(2)]];
        end
     end
@@ -310,13 +335,9 @@ while ag==1
     end
     
     
+
     
     
-%     %Find neighbour nodes of solnodes
-%     for i=1:sCon.sn
-%         solnodes(i).nen=nodelabel(and(abs(x1(1,:)-solnodes(i).x(1))<mCon.dm(1),abs(x1(2,:)-solnodes(i).x(2))<mCon.dm(2)));
-%     end
-%     
 end
 
 time1=toc; %Mesh timer

@@ -15,36 +15,56 @@ GlobalConst
 iter = 0;
 relDif = 1;
 deltaX = 1;
+time = 0;
+
 
 % Objective function definition
 if method == 1
-    [Ke,f,G,q]=EFGUnitMatrices();
-    if oCon.filter && ~oCon.filterIter 
-        [H,Hs] = filterInitialization(cells,mCon.nG,mmCon.rmin);
-        objectiveFunction = @(x) complianceEFG(x,distrType,Ke,f,G,q,H,Hs);
-        filterEnabled = true;
-        disp('Filter enabled')
-    else
-        objectiveFunction = @(x) complianceEFG(x,distrType,Ke,f,G,q);
-        filterEnabled = false;
+        [Ke,f,G,q,K]=EFGUnitMatrices();
+        disp('Unit matrices computed')
+        if oCon.filter && ~oCon.filterIter 
+            [H,Hs] = filterInitialization(cells,mCon.nG,mmCon.rmin);
+            filterEnabled = true;
+            disp('Filter enabled')
+        else
+            H = [];
+            Hs = [];
+            filterEnabled = false;
+        end
+        objectiveFunction = @(x) complianceEFG(x,distrType,Ke,f,G,q,K,...
+                H,Hs);
+    elseif method == 2
+        [Ke,f,ubar,K]=FEMUnitMatrices();
+        disp('Unit matrices computed')
+        if oCon.filter && ~oCon.filterIter 
+            [H,Hs] = filterInitialization(cells,mCon.nG,mmCon.rmin);
+            filterEnabled = true;
+            disp('Filter enabled')
+        else
+            H = [];
+            Hs = [];
+            filterEnabled = false;
+        end
+        objectiveFunction = @(x) complianceFEM(x,distrType,Ke,f,ubar,K,...
+                H,Hs);
     end
-elseif method == 2
-    [Ke,f,ubar]=FEMUnitMatrices();
-    if oCon.filter && ~oCon.filterIter 
-        [H,Hs] = filterInitialization(cells,mCon.nG,mmCon.rmin);
-        objectiveFunction = @(x) complianceFEM(x,distrType,Ke,f,ubar,H,Hs);
-        filterEnabled = true;
-        disp('Filter enabled')
-    else
-        objectiveFunction = @(x) complianceFEM(x,distrType,Ke,f,ubar);
-        filterEnabled = false;
-    end
+
+% Check mesh and mass distribution
+volFrac = mmCon.vol/pCon.vol;
+disp(['Volume fraction: ',num2str(100*volFrac),'%'])
+a = min(mmCon.dx,mmCon.dy)/max(mCon.dx,mCon.dy);
+if a < 1
+    disp('Warning: the mesh is probably too coarse for the mass distribution.')
+    disp(['    The ratio between mass nodes influence domain and cells/element',...
+        ' size should be at least 1'])
+    disp(['    Current value: ',num2str(a)])
 end
 
 % Variables initialization
 x0 = mnodesToVector(mnodes,distrType);
 [C0,dCdx0,u0] = objectiveFunction(x0);
 s0 = - dCdx0/norm(dCdx0);
+
 
 % Display information
 disp(['Iteration ',num2str(iter),' : Compliance = ',...
@@ -55,3 +75,5 @@ history.x = x0;
 history.C = C0;
 history.u = u0;
 history.m = mTot;
+
+tic2 = tic;

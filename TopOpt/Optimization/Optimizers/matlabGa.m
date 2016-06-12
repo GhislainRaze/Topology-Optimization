@@ -15,28 +15,110 @@
 
 
 
-function matlabGa(distrType,method)
-% Set up shared variables with OUTFUN
-history.x = [];
-history.fval = [];
-searchdir = [];
- 
-% call optimization
-GlobalConst
-InitMesh();
-[Ke,f,G,q]=EFGUnitMatrices();
+function history = matlabGa(distrType,method)
+    global mnodes oCon mCon mmCon pCon
 
-x0 = zeros(2*length(mnodes),1);
-for i = 1 : length(mnodes)
-    x0(2*i-1) = mnodes(i).x(1);
-    x0(2*i) = mnodes(i).x(2); 
-    LB(2*i-1) = 0;
-    LB(2*i) = -pCon.Ly/2;
-    UB(2*i-1) = pCon.Lx;
-    UB(2*i) = pCon.Ly/2;
-end
-pop = 10*length(mnodes);
-opt = gaoptimset('PopulationSize',pop,'Generations',100,'UseParallel','always','Display','iter');
-objfun = @(x) compliance(x,Ke,f,G,q);
-[x fval exitflag output] = ga(objfun,2*length(mnodes),[],[],[],[],LB,UB,[],opt);
+    history.x = [];
+    history.C = [];
+    
+    
+    if method == 1
+        [Ke,f,G,q,K]=EFGUnitMatrices();
+        disp('Unit matrices computed')
+        if oCon.filter && ~oCon.filterIter 
+            [H,Hs] = filterInitialization(cells,mCon.nG,mmCon.rmin);
+            filterEnabled = true;
+            disp('Filter enabled')
+        else
+            H = [];
+            Hs = [];
+            filterEnabled = false;
+        end
+        objectiveFunction = @(x) complianceEFG(x,distrType,Ke,f,G,q,K,...
+                H,Hs,false);
+    elseif method == 2
+        [Ke,f,ubar,K]=FEMUnitMatrices();
+        disp('Unit matrices computed')
+        if oCon.filter && ~oCon.filterIter 
+            [H,Hs] = filterInitialization(cells,mCon.nG,mmCon.rmin);
+            filterEnabled = true;
+            disp('Filter enabled')
+        else
+            H = [];
+            Hs = [];
+            filterEnabled = false;
+        end
+        objectiveFunction = @(x) complianceFEM(x,distrType,Ke,f,ubar,K,...
+                H,Hs,false);
+    end
+
+    % Check mesh and mass distribution
+    volFrac = mmCon.vol/pCon.vol;
+    disp(['Volume fraction: ',num2str(100*volFrac),'%'])
+    a = min(mmCon.dx,mmCon.dy)/max(mCon.dx,mCon.dy);
+    if a < 1
+        disp('Warning: the mesh is probably too coarse for the mass distribution.')
+        disp(['    The ratio between mass nodes influence domain and cells/element',...
+            ' size should be at least 1'])
+        disp(['    Current value: ',num2str(a)])
+    end
+    
+    if distrType == 3
+        nd = 5;
+    else
+        nd = distrType+1;
+    end
+    
+    LB = zeros(nd*length(mnodes),1);
+    UB = LB;
+    
+    
+    UB(1:nd:end-nd+1) = pCon.Lx;
+    LB(2:nd:end-nd+2) = -pCon.Ly/2;
+    UB(2:nd:end-nd+2) = pCon.Ly/2;
+    if distrType >= 2
+        UB(3:nd:end-nd+3) = pi;
+    end
+    if distrType == 3
+        UB(4:nd:end-1) = inf;
+        UB(5:nd:end) = inf;
+    end
+    
+    %pop = 10*length(mnodes);
+    %'PopulationSize',pop,
+    opt = gaoptimset('Generations',oCon.iterMax,...
+            'Display','iter','OutputFcn',@outfun);
+    
+    tic2 = tic;
+    
+    if distrType <3
+        ga(objectiveFunction,nd*length(mnodes),[],[],[],[],LB,UB,[],opt);
+    else
+        ga(objectiveFunction,nd*length(mnodes),[],[],[],[],LB,UB,...
+            @matlabMassConstraint,opt);
+    end
+    
+    
+    time = toc(tic2);
+    hh = floor(time/3600);
+    mm = floor((time-3600*hh)/60);
+    ss = round(time - 3600*hh - 60*mm);
+    titer = time/length(history.C);
+    
+    disp(['Total time elapsed: ',num2str(hh),'h ',num2str(mm),'m ',num2str(ss),'s '])
+    disp(['Average time per iteration: ',num2str(titer),'s'])
+    
+    function [state,options,optchanged] = outfun(options,state,flag,interval)
+        state.StopFlag = '';
+        optchanged = false;
+        switch flag
+            case 'iter'
+                [C,Imax] = max(state.Score);
+                % Concatenate current point and objective function
+                % value with history.
+                history.C = [history.C, C];
+                history.x = [history.x, state.Population(Imax,:)'];
+            otherwise
+        end
+    end
 end

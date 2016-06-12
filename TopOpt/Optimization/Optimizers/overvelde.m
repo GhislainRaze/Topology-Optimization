@@ -29,20 +29,24 @@ function history = overvelde(distrType,method)
 
     preOptimization;
     c = 0.8;
-    x0p = x0;
-    dt = 1/(max(mmCon.nx,mCon.ny));
+    dt = 2/(max(mCon.nx,mCon.ny));
     v = zeros(size(x0));
+    
     while abs(relDif) > oCon.relTol && deltaX > oCon.xTol && iter < oCon.iterMax
             iter = iter+1;
         
         v = v - dt*(c*v+dCdx0/norm(dCdx0));
         x0p = x0 + v*dt;
         
-
+        if distrType >= 3
+        	x0p = checkFeasability(x0p,x0);
+        end
         [C0p,dCdx0p,u0] = objectiveFunction(x0p);
         postIteration;
-       
-            
+        
+        if ~mod(iter,10)
+           dt = 0.9*dt; 
+        end
     end
 
     postOptimization;

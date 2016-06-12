@@ -59,9 +59,9 @@ function h = elementsContour(x,distrType,h,figureTitle)
         xi(2,i)+0.37*dmi(1,i)/2*sin(thetai(i))-0.37*dmi(2,i)/2*cos(thetai(i)),...
         xi(2,i)+0.37*dmi(1,i)/2*sin(thetai(i))+0.37*dmi(2,i)/2*cos(thetai(i))];
     
-    plot(xi(1,i),xi(2,i),'o')
-    line(xd(1,:),xd(2,:),'LineStyle','--','color',[0.75 0.75 1])
-    line(xc(1,:),xc(2,:),'color',[0.375 0.375 0.5])
+    plot(xi(1,i),xi(2,i),'o','linewidth',2.5)
+    line(xd(1,:),xd(2,:),'linewidth',1.5,'LineStyle','--','color',[0.75 0.75 1])
+    line(xc(1,:),xc(2,:),'linewidth',2,'color',[0.375 0.375 0.5])
     end
     
     hold off

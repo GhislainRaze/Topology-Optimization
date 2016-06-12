@@ -23,7 +23,8 @@
 % * _tol_: the tolerance on the minimum derivative (optional, default value
 % = 0.001)
 
-function  [xs,fs,gs,us] = trueMinimum(x0,f0,g0,x1,objectiveFunction,iterMax,tol)
+function  [xs,fs,gs,us] = trueMinimum(x0,f0,g0,x1,objectiveFunction,...
+    iterMax,tol,massC)
 
     if nargin < 6
         iterMax = 100;
@@ -48,18 +49,35 @@ function  [xs,fs,gs,us] = trueMinimum(x0,f0,g0,x1,objectiveFunction,iterMax,tol)
         ls = cubicApproximation(0,norm(x1-x0),f0,f1,gp0,gp1);
         
         xs = x0+ls*s0;
-        [fs,gs,us] = objectiveFunction(xs);
+        if massC
+            [xs,changedDirection] = checkFeasability(xs,x0);
+            [fs,gs,us] = objectiveFunction(xs);
+            if changedDirection
+                s0 = (xs-x0)/norm(xs-x0);
+                gp0 = g0'*s0;
+                gp1 = g1'*s0;
+            end
+        else
+            [fs,gs,us] = objectiveFunction(xs);
+        end
+        
         gps = gs'*s0;
         
         if abs(gps/g00) > tol
-            if norm(x1-xs) > norm(xs-x0)
-                x0 = xs;
-                f0 = fs;
-                gp0 = gps;
+            if gps > 0
+               x1 = xs;
+               f1 = fs;
+               gp1 = gps;
+               x0 = (x0+x1)/2;
+               [f0,g0] = objectiveFunction(x0);
+               gp0 = g0'*s0;
             else
-                x1 = xs;
-                f1 = fs;
-                gp1 = gps;
+               x0 = xs;
+               f0 = fs;
+               gp0 = gps;
+               x1 = (x0+x1)/2;
+               [f1,g1] = objectiveFunction(x1);
+               gp1 = g1'*s0;
             end
         else
             minimum = true;

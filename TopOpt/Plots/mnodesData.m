@@ -39,9 +39,9 @@ function [xi,thetai,dmi,mi] = mnodesData(nd,x)
             thetai(nn) = 0;
         end
         if nd == 5
-            dmi(1,nn) = x(i+3);
-            dmi(2,nn) = x(i+4);
-            mi(nn) = x(i+3)*x(i+4)/(mmCon.d^2);
+            dmi(1,nn) = x(i+3)/2;
+            dmi(2,nn) = x(i+4)/2;
+            mi(nn) = dmi(1,nn)*dmi(2,nn)*mmCon.rm;
         else
             dmi(1:2,nn) = mmCon.dm;
             mi(nn) = mmCon.mi;

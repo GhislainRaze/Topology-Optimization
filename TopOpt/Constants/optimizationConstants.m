@@ -29,17 +29,23 @@
 % * _oCon.filterIter_: number of iterations after which the filter is enabled
 % * _oCon.relTolFilter_: maximum tolerance on the relative compliance change
 % after which the filter is enabled
+%
+% * _oCon.relaxation_: relaxation factor for the mass constraint (only
+% relevant if deformable strucutral members are used)
+% * _oCon.mu_: factor for the log barrier (only relevant if deformable
+% structural members are used)
 
 % Algorithm parameters
-oCon.iterMax = 1000;                            % Maximum number of iteration
-oCon.relTol = 1e-6;                             % Maximum tolerance on the relative
+oCon.iterMax = 400;                             % Maximum number of iteration
+oCon.relTol = 1e-4;                             % Maximum tolerance on the relative
                                                 % compliance change
-oCon.xTol = 1e-4;                               % Maximum tolerance on the variables
+oCon.xTol = 0;                                  % Maximum tolerance on the variables
                                                 % change
-oCon.dg = 0.01;                                  % Initial step size
+oCon.cTol = 1e-5;
+oCon.dg = min(mCon.dx,mCon.dy);                 % Initial step size
 
 % Linesearch parameters
-oCon.trueMinimum = true;                       % Search for true minimum
+oCon.trueMinimum = false;                       % Search for true minimum
 oCon.iterMinimum = 50;                          % Number of iterations for the search
                                                 % of a true minimum
 oCon.tolMinimum = 1e-3;                         % Relative tolerance for the minimum derivative
@@ -50,12 +56,12 @@ oCon.iterWolfe = 20;                            % Number of iterations for the s
 oCon.p = 3;                                     % Intermediate density penalization
 oCon.continuation = false;                      % Continuation
 if oCon.continuation
-    oCon.pMax = mmCon.p;
+    oCon.pMax = oCon.p;
     oCon.p = 1;
 end
 
 % Filtering
-oCon.filter = true;                            % Density filter
+oCon.filter = false;                            % Density filter
 oCon.rmin = 0.3;                                % Radius under which the variations
                                                 % are filtered
 oCon.filterIter = 100;                          % Number of iterations after which the
@@ -63,3 +69,7 @@ oCon.filterIter = 100;                          % Number of iterations after whi
 oCon.relTolFilter = 1e-6;                       % Maximum tolerance on the relative
                                                 % compliance change after which the
                                                 % filter is enabled
+                                                
+% Mass constraint                                                
+oCon.relaxation = 1.001;                        % Relaxation factor for the mass constraint
+oCon.mu = 0.0001;                               % Factor for the log barrier (should be small)

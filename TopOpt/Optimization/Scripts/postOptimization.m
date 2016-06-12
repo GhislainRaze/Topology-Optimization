@@ -26,3 +26,11 @@ end
 
 disp(['Relative change in objective function: ', num2str(relDif)])
 disp(['Maximum change in variables: ', num2str(deltaX)])
+
+hh = floor(time/3600);
+mm = floor((time-3600*hh)/60);
+ss = round(time - 3600*hh - 60*mm);
+titer = time/iter;
+
+disp(['Total time elapsed: ',num2str(hh),'h ',num2str(mm),'m ',num2str(ss),'s '])
+disp(['Average time per iteration: ',num2str(titer),'s'])

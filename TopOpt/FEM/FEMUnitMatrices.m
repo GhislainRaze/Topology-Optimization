@@ -17,9 +17,10 @@
 % * _f_: the nodal force vector
 % * _ubar_: the imposed nodal displacements (set to NaN if there is no
 % imposed displacement associated to a given node)
+% * _K_: the minimum stiffness matrix
 % * _time1_: the time to assemble the problem
 
-function [Ke,f,ubar,time1]=FEMUnitMatrices()
+function [Ke,f,ubar,K,time1]=FEMUnitMatrices()
 
 GlobalConst
 InitFEMMesh;
@@ -28,12 +29,15 @@ tic %Assembly timer
 %Assembly K matrix and f vector internal cells
 Ke = cell(mCon.m*mCon.nG^2,1);
 f=zeros(2*mCon.n,1);
+K=zeros(2*mCon.n);
 
 for ic=1:mCon.m                                         % Iterations over the internal cells
+    en=zeros(1,2*length(cells(ic).nen));
+    en(1:2:end-1)=2*[cells(ic).nen]-1;              % x index of neighboring cells
+    en(2:2:end)=2*[cells(ic).nen];                  % y index
     for ip=1:cells(ic).ni                               % Iterations over the cell Gauss points
         B=zeros(3,2*length(cells(ic).nen));             
         F=zeros(2*length(cells(ic).nen),1);
-        en=zeros(1,2*length(cells(ic).nen));
         coord = 2*(cells(ic).int(ip).x-cells(ic).x)./cells(ic).dx;
         [phi,dphidx,dphidy]=FEMShape(coord,length(cells(ic).nen));
         B(1,1:2:end-1)=2/cells(ic).dx(1)*dphidx;
@@ -41,16 +45,16 @@ for ic=1:mCon.m                                         % Iterations over the in
         B(3,1:2:end-1)=2/cells(ic).dx(2)*dphidy;
         B(3,2:2:end)=2/cells(ic).dx(1)*dphidx;
         F(1:2:end-1)=phi*cells(ic).int(ip).cv(1);       
-        F(2:2:end)=phi*cells(ic).int(ip).cv(2);
-        en(1:2:end-1)=2*[cells(ic).nen]-1;              % x index of neighboring cells
-        en(2:2:end)=2*[cells(ic).nen];                  % y index
+        F(2:2:end)=phi*cells(ic).int(ip).cv(2); 
         Ke{(ic-1)*mCon.nG^2+ip} = B'*pCon.D*B*cells(ic).int(ip).w*cells(ic).J;
+        K(en,en) = K(en,en)+mmCon.EMin*B'*pCon.D*B*cells(ic).int(ip).w*cells(ic).J;
         f(en)=f(en)+F*cells(ic).int(ip).w*cells(ic).J;
     end
 end
 
+K = sparse(K);
 
-%Assembly G matrix and q vector boundary cells
+%Assembly f vector
 for ic=1:mCon.mb+mCon.mp
     if bcells(ic).BC==2 || bcells(ic).BC==4
         for ip=1:bcells(ic).ni
@@ -73,7 +77,7 @@ end
 
 % Imposed displacement
 ubar = nan(2*mCon.n,1);
-for i = 1 : length(bnodes)
+for i = 1 : size(bnodes,2)
     
     indx = 2*bnodes(1,i)-1;
     indy = 2*bnodes(1,i);

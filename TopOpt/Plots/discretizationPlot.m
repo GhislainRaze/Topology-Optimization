@@ -44,21 +44,23 @@
         plot(x(:,1),x(:,2),'.','color','r','linewidth',2,'markersize',16)
         x=[];
     end
+    u = [];
     if mCon.mp~=0
         for i=mCon.mb+1:mCon.mb+mCon.mp
             for j=1:bcells(i).ni
                 x=[x; bcells(i).int(j).x(1) bcells(i).int(j).x(2)];
+                u = [u;pCon.pLoad(i).F'];
             end
         end
-        plot(x(:,1),x(:,2),'x','color','r','linewidth',2,'markersize',16)
+        quiver(x(:,1),x(:,2),u(:,1),u(:,2),'color','r','linewidth',2)
     end
     x=[nodes.x]';
-    plot(x(:,1),x(:,2),'o','color','b','linewidth',2)
+    plot(x(:,1),x(:,2),'o','color',[0.3 0 0.3],'linewidth',2)
     if methodChoice == 2
         plot(x(bnodes(1,:),1),x(bnodes(1,:),2),'.','color','r','linewidth',2,'markersize',16)
     end
     x=[mnodes.x]';
-    plot(x(:,1),x(:,2),'o','color','m','linewidth',2)
+    plot(x(:,1),x(:,2),'o','color','b','linewidth',2)
     set(gca,'XTick',[0;pCon.Lx])
     set(gca,'YTick',[-pCon.Ly/2;0;pCon.Ly/2])
     set(gca,'XTickLabel',{'' ; ''})

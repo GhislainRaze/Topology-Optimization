@@ -51,7 +51,7 @@ function [rho,X,Y,xi] = densityField(x,distrType,n)
 
     for ii = 1 : size(X,1)
         for jj = 1 : size(X,2)
-            if rho(ii,jj) > mmCon.rhoMin
+            if rho(ii,jj) > 0
                 xj = [ X(ii,jj) , Y(ii,jj) ]; 
 
                 r1 = (xi(1,:)-xj(1)).*cos(thetai)+(xi(2,:)-xj(2)).*sin(thetai);
@@ -65,11 +65,11 @@ function [rho,X,Y,xi] = densityField(x,distrType,n)
                     dminn = dmi(:,nemn);
                     minn = mi(nemn);
 
-                    rho(ii,jj) = asymptoticDensity(xj,xinn,thetainn,dminn,minn,mmCon.rhoMin,...
-                        mmCon.rhoMax,distrType,false);
+                    rho(ii,jj) = asymptoticDensity(xj,xinn,thetainn,dminn,minn,...
+                        mmCon.rhoMax,distrType);
                     
                 else
-                    rho(ii,jj) = mmCon.rhoMin;
+                    rho(ii,jj) = 0;
                 end
             end
         end
@@ -144,7 +144,7 @@ function [rho,X,Y,xi] = densityField(x,distrType,n)
         
         for ii = 1 : size(X,1)
             for jj = 1 : size(X,2)
-                if rho(ii,jj) > mmCon.rhoMin  && ~(~mod(ii-1,3) && ~mod(jj-1,3))
+                if rho(ii,jj) > 0  && ~(~mod(ii-1,3) && ~mod(jj-1,3))
                     xj = [ X(ii,jj) , Y(ii,jj) ]; 
 
                     r1 = (xi(1,:)-xj(1)).*cos(thetai)+(xi(2,:)-xj(2)).*sin(thetai);
@@ -158,10 +158,10 @@ function [rho,X,Y,xi] = densityField(x,distrType,n)
                         dminn = dmi(:,nemn);
                         minn = mi(nemn);
 
-                        rho(ii,jj) = asymptoticDensity(xj,xinn,thetainn,dminn,minn,mmCon.rhoMin,...
+                        rho(ii,jj) = asymptoticDensity(xj,xinn,thetainn,dminn,minn,...
                             mmCon.rhoMax,distrType,false);
                     else
-                        rho(ii,jj) = mmCon.rhoMin;
+                        rho(ii,jj) = 0;
                     end
                 end
             end

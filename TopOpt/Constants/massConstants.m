@@ -16,8 +16,8 @@
 % * _mmCon.n_: the total number of mass nodes
 % * _mmCon.d_: the relative smoothing lenght of the kernel function
 % associated to the mass distribution
-% * _mmCon.rhoMin_: the minimum density (so that the stiffness matrix is
-% not singular)
+% * _mmCon.EMin_: the minimum Young modulus (so that the stiffness matrix 
+% is not singular)
 % * _mmCon.rhoMax_: the maximum density allowed in the asymptotic density
 % * _mmCon.distrType_: the distribution pattern (1: regular, 2: random)
 %
@@ -27,34 +27,37 @@
 % shifted from their position in the rectangle by a maximum radius
 % _mmCon.drn_. The nodal masses _mmCon.mi_ are set so that the density is
 % approximately equal to 1 inside the rectangle, and so that the total mass
-% of the structure is approximately equal to _mmCon.Lx * mmCon.Ly_.
+% of the structure is approximately equal to _mmCon.Lx * mmCon.Ly_. The
+% volume of the structure is given by _mmCon.vol_.
 %
 % The function outputs are :
 %
 % * _mmCon_: a structure containing the mass distribution constants
 % * _mnodes_: a cell structure containing the mass nodes coordinates,
 % angles and dimensions
+
 function [mmCon,mnodes] = massConstants(pCon,mCon)
 
     % Meshless mass constants
-    mmCon.nx=4*pCon.Lx;                             % Number of mass nodes along the width
-    mmCon.ny=2*pCon.Ly;                             % Number of mass nodes along the height
+    mmCon.nx=2*pCon.Lx;                             % Number of mass nodes along the width
+    mmCon.ny=1*pCon.Ly;                             % Number of mass nodes along the height
     mmCon.n=mmCon.nx*mmCon.ny;                      % Total number of mass nodes
     mmCon.d=1.5;                                    % Relative smoothing length
     mmCon.m = mCon.m;                               % Number of integration cells
-    mmCon.rhoMin = 1e-3;                            % Minimum density
+    mmCon.EMin = 1e-9;                              % Minimum Young's modulus
     mmCon.rhoMax = 1.1;                             % Maximum density
     mmCon.distrType = 1;                            % Distribution type (1: in a rectangle, 2: random, 3: semi-random)
     
 
     
     % Nodes distribution parameters
-    mmCon.Lx = pCon.Lx;                           % Rectangle length
+    mmCon.Lx = pCon.Lx;                             % Rectangle length
     mmCon.Ly = pCon.Ly/6;                           % Rectangle height
     mmCon.drn = 0.001*sqrt(mmCon.Lx^2 + mmCon.Ly^2);% Semi-random maximal radius
+    mmCon.vol = mmCon.Lx*mmCon.Ly;                  % Volume of the structure
     
     if mmCon.nx ~= 1
-        mmCon.x0 = 0;                               % Rectangle low left corner x coordinate
+        mmCon.x0 = (pCon.Lx-mmCon.Lx)/2;            % Rectangle low left corner x coordinate
         mmCon.dx=mmCon.Lx/(mmCon.nx-1);             % Horizontal distance between nodes
     else
         mmCon.x0 = pCon.Lx/2;
@@ -67,9 +70,12 @@ function [mmCon,mnodes] = massConstants(pCon,mCon)
         mmCon.y0 = 0;
         mmCon.dy = pCon.Ly;
     end
+    
     mmCon.dm=[mmCon.d*mmCon.dx ; mmCon.d*mmCon.dy]; % Smoothing length in x and y direction, respectively.
     mmCon.mi = mmCon.dx*mmCon.dy;                   % Mass per node     
-
+    mmCon.rm = 1/mmCon.d^2;                         % Ratio between nodal influence domain and mass
+    mmCon.mMax = mmCon.n*mmCon.mi;                  % Total mass of the structure
+    
     % Create mass nodes
     mnodes = struct;
     for i=1:mmCon.n
@@ -105,5 +111,46 @@ function [mmCon,mnodes] = massConstants(pCon,mCon)
             end
         end
     end
+    
+    
+    % Check that there are no mass nodes in holes
+    if ~isempty(pCon.holes)
+        nodesInHoles = true;
+    else
+        nodesInHoles = false;
+    end
+    nodesInd = 1:mmCon.n;
+    nodesMoved = [];
+    
+    while nodesInHoles
+        
+    for h = 1 : length(pCon.holes)
+        nodesInHoles = false;
+        if pCon.holes(h).type == 1                              % Rectangle
+            xdHole = pCon.holes(h).x0 - pCon.holes(h).l/2;
+            xuHole = pCon.holes(h).x0 + pCon.holes(h).l/2;
+            
+            for i = 1:length(nodesInd)
+                if min(mnodes(nodesInd(i)).x > xdHole) && min(mnodes(nodesInd(i)).x < xuHole)
+                    mnodes(nodesInd(i)).x = [rand()*pCon.Lx;...
+                    rand()*pCon.Ly-pCon.Ly/2];
+                    nodesInHoles = true;
+                    nodesMoved = [nodesMoved,i];
+                end
+            end
+        elseif pCon.holes(h).type == 2                          % Circle
+            for i = 1:length(nodesInd)
+                if norm(mnodes(nodesInd(i)).x - pCon.holes(h).x0) < r
+                    mnodes(nodesInd(i)).x = [rand()*pCon.Lx;...
+                    rand()*pCon.Ly-pCon.Ly/2];
+                    nodesInHoles = true;
+                    nodesMoved = [nodesMoved,i];
+                end
+        end
+        nodesInd = nodesInd(nodesMoved);
+        nodesMoved = [];
+    end
+    end
+    
     
 end

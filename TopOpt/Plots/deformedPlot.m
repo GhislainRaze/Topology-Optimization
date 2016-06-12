@@ -15,20 +15,21 @@ function deformedPlot(data,n,mag)
     
     X = data{1};
     Y = data{2};
-    xc = data{3};
-    yc = data{4};
-    uX = data{5};
-    uY = data{6};
-    field = data{n+4};
+    uX = data{3};
+    uY = data{4};
+    field = data{n+2};
     
-    
+    cla
+    %cm = [flipud(gray(64));jet(64)];
+    hold on
     set(gca,'units','normalized','position',[1/8,1/4,3/4,1/2])
     pcol = pcolor(X+mag*uX,Y+mag*uY,field);
     shading interp
     colorbar
-    hold on
-    fill(xc,yc,[0.75 0.75 0.75],'linestyle','none')
+    surface(X,Y,field-max(max(field))+min(min(field)),...
+        'FaceColor',[0.75 0.75 0.75],'FaceAlpha',1,'LineStyle','none')
     uistack(pcol,'top')
+    caxis([min(min(field)),max(max(field))])
     hold off
     axis equal
     set(gca,'fontsize',20)

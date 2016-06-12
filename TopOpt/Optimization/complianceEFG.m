@@ -25,32 +25,27 @@
 % * _H_: the filter convolution matrix (optional)
 % * _Hs_: the sum of the filter convolution matrix lines (optional)
 
-function [C,dCdx,u] = complianceEFG(xmnodes,distrType,Ke,f,G,q,H,Hs)
+function [C,dCdx,u] = complianceEFG(xmnodes,distrType,Ke,f,G,q,K,H,Hs,...
+    computeDerivatives)
+    
+    global oCon
 
-    GlobalConst
-    if distrType == 3
-        nd = 5;
-    else
-        nd = distrType+1;
+    if nargin < 10
+        computeDerivatives = true;
     end
     
-    for i = 1:length(mnodes)
-        mnodes(i).x(1) = xmnodes(nd*(i-1)+1);
-        mnodes(i).x(2) = xmnodes(nd*(i-1)+2);
-        if distrType >= 2
-            mnodes(i).theta = xmnodes(nd*(i-1)+3);
-        end
-        if distrType == 3
-            rm = mnodes(i).m/(mnodes(i).l(1)*mnodes(i).l(2));
-            mnodes(i).l(1) = xmnodes(nd*(i-1)+4);
-            mnodes(i).l(2) = xmnodes(nd*i);
-            mnodes(i).m = rm*mnodes(i).l(1)*mnodes(i).l(2);
+    vectorTomnodes(xmnodes,distrType);
+    
+    [u,C,dCdx]=EFG(Ke,f,G,q,K,distrType,H,Hs,computeDerivatives);
+    
+    if distrType >= 3
+        [cm,dcmdx] = massConstraint(xmnodes,oCon.relaxation);
+        C = C - oCon.mu*log(cm);
+        if computeDerivatives
+            dCdx = dCdx - oCon.mu/cm*dcmdx;
         end
     end
-    if nargin < 7
-        [u,C,dCdx]=EFG(Ke,f,G,q,distrType);
-    elseif nargin == 8
-        [u,C,dCdx]=EFG(Ke,f,G,q,distrType,H,Hs);
-    end
+    
+    
 
 end

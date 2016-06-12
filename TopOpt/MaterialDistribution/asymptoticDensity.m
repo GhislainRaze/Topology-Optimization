@@ -9,12 +9,16 @@
 %
 % Computes the asymptotic density at coordinate _xj_ of node _xi_ with
 % associated _thetai_ (rotation angle), _dmi_ (smoothing lenghts) and _mi_
-% (nodal mass). The other inputs are :
+% (nodal mass). The other inputs are
 % 
 % * _rhoMin_: the minimum density (to avoid a singular stiffness matrix)
 % * _rhoMax_: the maximum density before it is penalized by the asymptotic
 % density
 % * _distrType_: the material distribution type
+% * _computeDerivatives_: set to true if the density derivatives have to be
+% comuted (default value = false)
+% * _rm_: the ratio between the mass node domain dimensions and its mass,
+% ie $r_m = m^I/(d_x^Id_y^I)$
 %
 %
 % The density is first based on a kernel approximation with a cubic spline
@@ -40,14 +44,14 @@
 % $$ \rho^{m}(\mathbf{x}) = \rho_{Min} +
 % (1-\rho_{Min})\rho^{as}(\rho(\mathbf{x})) $$
 
-function [rhoA,drhoAdx] = asymptoticDensity(xj,xi,thetai,dmi,mi,rhoMin,...
-    rhoMax,distrType,computeDerivatives)
+function [rhoA,drhoAdx] = asymptoticDensity(xj,xi,thetai,dmi,mi,rhoMax,...
+    distrType,computeDerivatives,rm)
 
-    if nargin < 8
+    if nargin < 7
         distrType = 1;
     end
-    if nargin < 9
-        computeDerivatives = true;
+    if nargin < 8
+        computeDerivatives = false;
     end
 
     nn = size(xi,2);
@@ -87,10 +91,9 @@ function [rhoA,drhoAdx] = asymptoticDensity(xj,xi,thetai,dmi,mi,rhoMin,...
                     ((-sxi+cyi)*dwidx -(cxi+syi)*dwidy);
             end
             if distrType == 3
-                mui = mi(mm)/(4*dmi(1,mm)*dmi(2,mm));
-                drhodx(nd*(mm-1)+4) = (2*mui*dmi(2,mm)*wi -...
+                drhodx(nd*(mm-1)+4) = (rm/2*dmi(2,mm)*wi -...
                                         mi(mm)*(wi+(cxi+syi)*dwidx)/(2*dmi(1,mm)));
-                drhodx(nd*mm) = (2*mui*dmi(1,mm)*wi -...
+                drhodx(nd*mm) = (rm/2*dmi(1,mm)*wi -...
                                         mi(mm)*(wi+(-sxi+cyi)*dwidy)/(2*dmi(2,mm)));
             end
         end
@@ -103,14 +106,10 @@ function [rhoA,drhoAdx] = asymptoticDensity(xj,xi,thetai,dmi,mi,rhoMin,...
     
     rhoA = a*rho./(rho.^b+a);
     
-    % Minimum density
-    rhoA = rhoMin + (1-rhoMin)*rhoA;
-    
     % Density derivatives
     if computeDerivatives
         drhoAdrho = (a*(1-b)*rho.^b + a^2)./((rho.^b+a).^2);
         drhoAdx = drhoAdrho.*drhodx;
-        drhoAdx = (1-rhoMin)*drhoAdx;
     end
     
 

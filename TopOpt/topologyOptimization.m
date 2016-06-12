@@ -18,17 +18,19 @@ addpath('Optimization/LineSearch/');
 addpath('Optimization/Optimizers/');
 addpath('Optimization/Scripts/');
 addpath('Constants/');
+addpath('Constants/LoadCases/');
 addpath('Discretization/');
 addpath('MaterialDistribution/');
 addpath('EFG/');
 addpath('FEM/');
-addpath('IIEFG/');
 addpath('Plots/');
 addpath('Plots/Callbacks/');
+addpath('Plots/Postprocessing/');
 addpath('Display/');
 
-GlobalConst;
-optimizationConstants;
+%% Load case
+loadCase = 'loadCase1';     % The corresponding file must exist
+
 %% Method, material distribution and optimization algorithm
 % The elastic problem can be discretized thanks to three different methods
 % : the Element-Free Galerkin (EFG) method, the Finite Element Method (FEM)
@@ -36,11 +38,11 @@ optimizationConstants;
 %
 % The material distribution 
 methodChoice = 2;           % 1: EFG, 2: FEM, 3: IIEFG 
-massChoice = 2;             % 1: Mass nodes, 2: Undeformable structural 
+massChoice = 3;             % 1: Mass nodes, 2: Undeformable structural 
                             % members, 3: Deformable structural members 
-optimChoice = 3;            % 1: Overvelde's algorithm, 2: steepest descent,
+optimChoice = 5;            % 1: Overvelde's algorithm, 2: steepest descent,
                             % 3: conjugated gradients, 4: quasi Newton
-                            % BFGS, 5: Matlab fminunc or fmincon, 5: Matlab
+                            % BFGS, 5: Matlab fminunc or fmincon, 6: Matlab
                             % ga.
                             
                             
@@ -55,6 +57,11 @@ plotCompliance = true;      % Plots the compliance evolution
 plotMass = true;            % Plots the mass evolution
 plotDeformed = true;        % Plots the final deformed configuration
 
+
+%% Constants initialization
+GlobalConst;
+problemConstants(loadCase);
+optimizationConstants;
 
 
 %% Optimization process
@@ -100,7 +107,7 @@ switch optimChoice
         methodDisplay(methodChoice)
         massDisplay(massChoice)
         disp('=======================================================')
-        history = matlabFminunc(massChoice,methodChoice);
+        history = matlabFmin(massChoice,methodChoice);
     case 6
         disp('=======================================================')
         disp('                  TOPOLOGY OPTIMIZATION                ')
