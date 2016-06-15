@@ -26,11 +26,14 @@
 % * _Hs_: the sum of the filter convolution matrix lines (optional)
 
 function [C,dCdx,u] = complianceEFG(xmnodes,distrType,Ke,f,G,q,K,H,Hs,...
-    computeDerivatives)
+    constraint,computeDerivatives)
     
     global oCon
-
+    
     if nargin < 10
+        constraint = false;
+    end
+    if nargin < 11
         computeDerivatives = true;
     end
     
@@ -38,7 +41,7 @@ function [C,dCdx,u] = complianceEFG(xmnodes,distrType,Ke,f,G,q,K,H,Hs,...
     
     [u,C,dCdx]=EFG(Ke,f,G,q,K,distrType,H,Hs,computeDerivatives);
     
-    if distrType >= 3
+    if constraint
         [cm,dcmdx] = massConstraint(xmnodes,oCon.relaxation);
         C = C - oCon.mu*log(cm);
         if computeDerivatives

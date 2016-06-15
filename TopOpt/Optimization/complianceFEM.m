@@ -25,11 +25,14 @@
 % * _Hs_: the sum of the filter convolution matrix lines (optional)
 
 function [C,dCdx,u] = complianceFEM(xmnodes,distrType,Ke,f,ubar,K,...
-    H,Hs,computeDerivatives)
+    H,Hs,constraint,computeDerivatives)
     
     global oCon
-
+    
     if nargin < 9
+        constraint = false;
+    end
+    if nargin < 10
         computeDerivatives = true;
     end
     
@@ -37,7 +40,7 @@ function [C,dCdx,u] = complianceFEM(xmnodes,distrType,Ke,f,ubar,K,...
 
     [u,C,dCdx]=FEM(Ke,f,ubar,K,distrType,H,Hs,computeDerivatives);
     
-    if distrType >= 3
+    if constraint
         [cm,dcmdx] = massConstraint(xmnodes,oCon.relaxation);
         C = C - oCon.mu*log(cm);
         if computeDerivatives

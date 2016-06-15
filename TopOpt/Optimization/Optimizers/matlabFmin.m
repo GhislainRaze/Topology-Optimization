@@ -38,7 +38,7 @@ function history = matlabFmin(distrType,method)
             filterEnabled = false;
         end
         objectiveFunction = @(x) complianceEFG(x,distrType,Ke,f,G,q,K,...
-                H,Hs);
+                H,Hs,false);
     elseif method == 2
         [Ke,f,ubar,K]=FEMUnitMatrices();
         disp('Unit matrices computed')
@@ -52,7 +52,7 @@ function history = matlabFmin(distrType,method)
             filterEnabled = false;
         end
         objectiveFunction = @(x) complianceFEM(x,distrType,Ke,f,ubar,K,...
-                H,Hs);
+                H,Hs,false);
     end
 
     x0 = mnodesToVector(mnodes,distrType);
@@ -69,6 +69,30 @@ function history = matlabFmin(distrType,method)
     end
 
     
+    if distrType == 3
+        nd = 5;
+    else
+        nd = distrType+1;
+    end
+    
+    LB = zeros(nd*length(mnodes),1);
+    UB = LB;
+    
+    
+    UB(1:nd:end-nd+1) = pCon.Lx;
+    LB(2:nd:end-nd+2) = -pCon.Ly/2;
+    UB(2:nd:end-nd+2) = pCon.Ly/2;
+    if distrType >= 2
+        UB(3:nd:end-nd+3) = pi;
+    end
+    if distrType == 3
+        Lmin = min(2*mCon.dx,2*mCon.dy);
+        LB(4:nd:end-1) = Lmin;
+        UB(4:nd:end-1) = inf;
+        LB(5:nd:end) = Lmin;
+        UB(5:nd:end) = inf;
+    end
+    
     tic2 = tic;
     
     if distrType <3
@@ -77,14 +101,12 @@ function history = matlabFmin(distrType,method)
             'TolFun',oCon.relTol,'TolX',oCon.xTol);
         fminunc(objectiveFunction,x0,opt);
     else
-        lb = -inf(size(x0));
-        ub = inf(size(x0));
-        lb(4:5:end-1) = 0;
-        lb(5:5:end) = 0;
+        % The algorithms 'interior-point' and 'sqp' work fine,
+        % 'interior-point' is faster
         opt = optimset('GradObj','on','GradConstr','on','Display','iter',...
             'MaxIter',oCon.iterMax,'OutputFcn',@outfun,...
-            'TolFun',oCon.relTol,'TolX',oCon.xTol);
-        fmincon(objectiveFunction,x0,[],[],[],[],lb,ub,...
+            'TolFun',oCon.relTol,'TolX',oCon.xTol,'Algorithm','interior-point');
+        fmincon(objectiveFunction,x0,[],[],[],[],LB,UB,...
             @matlabMassConstraint,opt);
     end
     

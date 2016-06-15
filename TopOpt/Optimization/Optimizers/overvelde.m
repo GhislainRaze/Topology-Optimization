@@ -45,7 +45,7 @@ function history = overvelde(distrType,method)
         postIteration;
         
         if ~mod(iter,10)
-           dt = 0.9*dt; 
+           dt = 0.95*dt; 
         end
     end
 

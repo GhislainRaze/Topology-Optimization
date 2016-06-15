@@ -37,12 +37,12 @@
 
 % Algorithm parameters
 oCon.iterMax = 400;                             % Maximum number of iteration
-oCon.relTol = 1e-4;                             % Maximum tolerance on the relative
+oCon.relTol = 1e-6;                             % Maximum tolerance on the relative
                                                 % compliance change
-oCon.xTol = 0;                                  % Maximum tolerance on the variables
+oCon.xTol = 1e-6;                               % Maximum tolerance on the variables
                                                 % change
 oCon.cTol = 1e-5;
-oCon.dg = min(mCon.dx,mCon.dy);                 % Initial step size
+oCon.dg = min(pCon.Lx,pCon.Ly)/10;              % Initial step size
 
 % Linesearch parameters
 oCon.trueMinimum = false;                       % Search for true minimum

@@ -11,6 +11,7 @@ clear all
 close all
 clc
 
+profile on
 
 %% Build path
 addpath('Optimization/');
@@ -29,7 +30,7 @@ addpath('Plots/Postprocessing/');
 addpath('Display/');
 
 %% Load case
-loadCase = 'loadCase1';     % The corresponding file must exist
+loadCase = 'loadCase4';     % The corresponding file must exist
 
 %% Method, material distribution and optimization algorithm
 % The elastic problem can be discretized thanks to three different methods
@@ -120,3 +121,6 @@ end
 
 %% Postprocessing
 endPlots;
+
+profile off
+stats = profile('info');

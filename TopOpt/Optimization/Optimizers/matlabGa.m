@@ -35,7 +35,7 @@ function history = matlabGa(distrType,method)
             filterEnabled = false;
         end
         objectiveFunction = @(x) complianceEFG(x,distrType,Ke,f,G,q,K,...
-                H,Hs,false);
+                H,Hs,false,false);
     elseif method == 2
         [Ke,f,ubar,K]=FEMUnitMatrices();
         disp('Unit matrices computed')
@@ -49,7 +49,7 @@ function history = matlabGa(distrType,method)
             filterEnabled = false;
         end
         objectiveFunction = @(x) complianceFEM(x,distrType,Ke,f,ubar,K,...
-                H,Hs,false);
+                H,Hs,false,false);
     end
 
     % Check mesh and mass distribution

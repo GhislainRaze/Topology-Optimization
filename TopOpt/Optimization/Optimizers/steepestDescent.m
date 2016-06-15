@@ -15,11 +15,12 @@
 
 function history = steepestDescent(distrType,method)
     preOptimization;
-
+    step = oCon.dg;
+    
     while relDif > oCon.relTol && deltaX > oCon.xTol && iter < oCon.iterMax
         iter = iter+1;
 
-        x1 = x0 - dCdx0/norm(dCdx0)*oCon.dg;
+        x1 = x0 - dCdx0*step;
 
         if distrType >= 3
         	x1 = checkFeasability(x1,x0);
@@ -33,6 +34,7 @@ function history = steepestDescent(distrType,method)
                 objectiveFunction,oCon.iterWolfe,distrType>=3);
         end
         
+        step = min(1,2.02*(C0p-C0)/norm(dXdc0p));
         postIteration;
     end
 postOptimization;

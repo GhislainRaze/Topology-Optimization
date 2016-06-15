@@ -40,19 +40,19 @@ function [mmCon,mnodes] = massConstants(pCon,mCon)
 
     % Meshless mass constants
     mmCon.nx=2*pCon.Lx;                             % Number of mass nodes along the width
-    mmCon.ny=1*pCon.Ly;                             % Number of mass nodes along the height
+    mmCon.ny=3*pCon.Ly;                             % Number of mass nodes along the height
     mmCon.n=mmCon.nx*mmCon.ny;                      % Total number of mass nodes
     mmCon.d=1.5;                                    % Relative smoothing length
     mmCon.m = mCon.m;                               % Number of integration cells
     mmCon.EMin = 1e-9;                              % Minimum Young's modulus
-    mmCon.rhoMax = 1.1;                             % Maximum density
-    mmCon.distrType = 1;                            % Distribution type (1: in a rectangle, 2: random, 3: semi-random)
+    mmCon.rhoMax = 1.05;                             % Maximum density
+    mmCon.distrType = 4;                            % Distribution type (1: in a rectangle, 2: random, 3: semi-random)
     
 
     
     % Nodes distribution parameters
-    mmCon.Lx = pCon.Lx;                             % Rectangle length
-    mmCon.Ly = pCon.Ly/6;                           % Rectangle height
+    mmCon.Lx = 3*pCon.Lx/4;                             % Rectangle length
+    mmCon.Ly = pCon.Ly/4;                           % Rectangle height
     mmCon.drn = 0.001*sqrt(mmCon.Lx^2 + mmCon.Ly^2);% Semi-random maximal radius
     mmCon.vol = mmCon.Lx*mmCon.Ly;                  % Volume of the structure
     
@@ -80,9 +80,15 @@ function [mmCon,mnodes] = massConstants(pCon,mCon)
     mnodes = struct;
     for i=1:mmCon.n
         mnodes(i).x=[];
-        mnodes(i).theta=0;
+        mnodes(i).theta=0.0001;
         mnodes(i).l = 2*[mmCon.dm(1);mmCon.dm(2)];
         mnodes(i).m = mmCon.mi;
+    end
+    
+    if ~isempty(pCon.holes)
+        nodesInHoles = true;
+    else
+        nodesInHoles = false;
     end
     
     % Mass nodes coordinates
@@ -110,46 +116,78 @@ function [mmCon,mnodes] = massConstants(pCon,mCon)
                     rand()*mmCon.drn()*[cos(theta);sin(theta)];
             end
         end
+    elseif mmCon.distrType == 4
+        dx = pCon.Lx/mmCon.nx;
+        dy = pCon.Ly/mmCon.ny;
+        posx = 0:mmCon.nx-1;
+        posy = 0:mmCon.ny-1;
+        [x,y] = meshgrid(dx/2+dx*posx,-pCon.Ly/2+dy/2+dy*posy);
+        nxtmp = mmCon.nx;
+        nytmp = mmCon.ny;
+        incry = true;
+        nbNodes = 0;
+        while nodesInHoles
+            nodesInHoles = false;
+            nbNodes = 0;
+        	for i = 1 : size(x,1)
+            	for j = 1 : size(x,2)
+                    if checkHolesNode([x(i,j);y(i,j)],pCon.holes);
+                        nbNodes = nbNodes + 1;
+                    end
+                end
+            end
+            if size(x,1)*size(x,2)-nbNodes < mmCon.n
+            	nodesInHoles = true;
+                if incry
+                    posx = 0:nxtmp;
+                	nxtmp = nxtmp+1;
+                    dx = pCon.Lx/nxtmp;
+                    incry = false;
+                else
+                    posy = 0:nytmp;
+                    nytmp = nytmp+1;
+                    dy = pCon.Ly/nytmp;
+                    incry = true;
+                end
+                [x,y] = meshgrid(dx/2+dx*posx,-pCon.Ly/2+dy/2+dy*posy);
+            end    
+        end
+        
+        k = 0;
+        for j = 1 : size(x,2)
+            for i = 1 : size(x,1)
+                if ~checkHolesNode([x(i,j);y(i,j)],pCon.holes)
+                    k = k +1;
+                    if k > mmCon.n
+                        break
+                    end
+                    mnodes(k).x = [x(i,j);y(i,j)];
+                end
+            end
+            if k > mmCon.n
+                break
+            end
+        end
     end
     
     
     % Check that there are no mass nodes in holes
-    if ~isempty(pCon.holes)
-        nodesInHoles = true;
-    else
-        nodesInHoles = false;
-    end
+    
     nodesInd = 1:mmCon.n;
     nodesMoved = [];
     
-    while nodesInHoles
-        
-    for h = 1 : length(pCon.holes)
-        nodesInHoles = false;
-        if pCon.holes(h).type == 1                              % Rectangle
-            xdHole = pCon.holes(h).x0 - pCon.holes(h).l/2;
-            xuHole = pCon.holes(h).x0 + pCon.holes(h).l/2;
-            
-            for i = 1:length(nodesInd)
-                if min(mnodes(nodesInd(i)).x > xdHole) && min(mnodes(nodesInd(i)).x < xuHole)
-                    mnodes(nodesInd(i)).x = [rand()*pCon.Lx;...
+    while nodesInHoles && mmCon.distrType < 4
+        for i = 1:length(nodesInd)
+            nodesInHoles = false;
+            if checkHolesNode(mnodes(nodesInd(i)).x,pCon.holes)
+                mnodes(nodesInd(i)).x = [rand()*pCon.Lx;...
                     rand()*pCon.Ly-pCon.Ly/2];
-                    nodesInHoles = true;
-                    nodesMoved = [nodesMoved,i];
-                end
+                nodesInHoles = true;
+                nodesMoved = [nodesMoved,i];
             end
-        elseif pCon.holes(h).type == 2                          % Circle
-            for i = 1:length(nodesInd)
-                if norm(mnodes(nodesInd(i)).x - pCon.holes(h).x0) < r
-                    mnodes(nodesInd(i)).x = [rand()*pCon.Lx;...
-                    rand()*pCon.Ly-pCon.Ly/2];
-                    nodesInHoles = true;
-                    nodesMoved = [nodesMoved,i];
-                end
         end
         nodesInd = nodesInd(nodesMoved);
         nodesMoved = [];
-    end
     end
     
     

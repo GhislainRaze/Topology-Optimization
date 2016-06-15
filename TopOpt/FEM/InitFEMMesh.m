@@ -22,7 +22,7 @@ tic %Mesh timer
 mCon.addCells = 0;                          % Background mesh domain 
                                             % multiplication factor
 mCon.mx=8*pCon.Lx;                          %Number of elements along the width
-mCon.my=4*pCon.Ly;                          %Number of elements along the height
+mCon.my=8*pCon.Ly;                          %Number of elements along the height
 mCon.pn=1;                                  %Element degree (1: Q4, 2: Q8, 3: Q12)
 mCon.nx=mCon.pn*mCon.mx+1+2*mCon.addCells;  % Number of discretization nodes along the width
 mCon.ny=mCon.pn*mCon.my+1+2*mCon.addCells;  % Number of discretization nodes along the height

@@ -5,7 +5,7 @@
 
 
 %% Dimensions
-pCon.Lx=1;                                      % Problem domain length
+pCon.Lx=3;                                      % Problem domain length
 pCon.Ly=1;                                      % Problem domain height
 
 

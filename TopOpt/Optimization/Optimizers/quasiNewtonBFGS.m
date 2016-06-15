@@ -22,8 +22,11 @@ function history = quasiNewtonBFGS(distrType,method)
     
     while relDif > oCon.relTol || deltaX > oCon.xTol && iter < oCon.iterMax
         iter = iter+1;
-
-        x1 = x0 +s0*oCon.dg;
+        if iter == 1
+            x1 = x0 +s0*oCon.dg;
+        else
+            x1 = x0 + s0;
+        end
         if distrType >= 3
             x1 = checkFeasability(x1,x0);
         end
@@ -37,12 +40,12 @@ function history = quasiNewtonBFGS(distrType,method)
         end
         
         relDif = (C0-C0p)/C0p;
-
+        s0 = x0p-x0;
         y = (dCdx0p-dCdx0);
         gamma = 1/(s0'*y);
         S0 = (I-gamma*(s0*y'))*S0*(I-gamma*(y*s0')) + gamma*s0*s0';
         s0 = -S0*dCdx0p;
-        s0 = s0/norm(s0);
+        %s0 = s0/norm(s0);
         postIteration;
     end
     

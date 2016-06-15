@@ -17,11 +17,13 @@ function history = conjugatedGradients(distrType,method)
 
     preOptimization;
 
+    step = oCon.dg;
+    
     while abs(relDif) > oCon.relTol && deltaX > oCon.xTol && iter < oCon.iterMax
         iter = iter+1;
 
 
-        x1 = x0 +s0*oCon.dg;
+        x1 = x0 +s0*step;
         if distrType >= 3
             x1 = checkFeasability(x1,x0);
         end
@@ -41,7 +43,7 @@ function history = conjugatedGradients(distrType,method)
             beta = 0;
         end
         s0 = -dCdx0p + beta*s0;
-        s0 = s0/norm(s0);
+        step = min(1,2.02*(C0p-C0)/norm(dCdx0p));
         postIteration;
 
     end
