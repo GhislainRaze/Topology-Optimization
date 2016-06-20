@@ -58,7 +58,6 @@ if nargin < 8
     computeDerivatives = true;
 end
 
-
 cells = neighboringMassNodes(mnodes,cells);
 if distrType == 3
     nd = 5;
@@ -70,6 +69,7 @@ if computeDerivatives
 end
 dCdx = zeros(nd*mmCon.n,1);
 mTot = 0;
+
 
 if filter
     % If there is a filter, the densities are first computed and saved,
@@ -117,6 +117,7 @@ for ic=1:mCon.m                                         % Iterations over the in
     end
 end
 
+
 if filter
     % Filtering
     drhoVec = sparse(drhoVec);
@@ -124,28 +125,25 @@ if filter
     for i = 1 : size(drhoVec,2)
         drhoVec(:,i) = H*(drhoVec(:,i)./Hs);
     end
-    
     % Assembly
     for i = 1 : length(rhoVec)
-        if ~rhoVec(i)
-            ic = ceil(i/mCon.nG^2);
-            ip = mod(i-1,mCon.nG^2)+1;
-            en=zeros(1,2*length(cells(ic).nen));
-            en(1:2:end-1)=2*[cells(ic).nen]-1;      % x index of neighboring cells
-            en(2:2:end)=2*[cells(ic).nen];          % y index
-            K(en,en)=K(en,en)+(pCon.E-mmCon.EMin)*rhoVec(i)^oCon.p*Ke{(ic-1)*mCon.nG^2+ip};
-            if computeDerivatives
-                emn=zeros(1,nd*length(cells(ic).int(ip).nemn));
-                for j = 1:nd
-                    emn(j:nd:end-nd+j)=nd*[cells(ic).int(ip).nemn]-nd+j;
-                end
-                for j=1:length(emn)
-                    dKdx{emn(j)}(en,en)=dKdx{emn(j)}(en,en)+...
-                        (pCon.E-mmCon.EMin)*oCon.p*drhoVec(i,emn(j))*rhoVec(i)^(oCon.p-1)*Ke{(ic-1)*mCon.nG^2+ip}; 
-                end
+        ic = ceil(i/mCon.nG^2);
+        ip = mod(i-1,mCon.nG^2)+1;
+        en=zeros(1,2*length(cells(ic).nen));
+        en(1:2:end-1)=2*[cells(ic).nen]-1;      % x index of neighboring cells
+        en(2:2:end)=2*[cells(ic).nen];          % y index
+        K(en,en)=K(en,en)+(pCon.E-mmCon.EMin)*rhoVec(i)^oCon.p*Ke{(ic-1)*mCon.nG^2+ip};
+        if computeDerivatives
+            emn=zeros(1,nd*length(cells(ic).int(ip).nemn));
+            for j = 1:nd
+                emn(j:nd:end-nd+j)=nd*[cells(ic).int(ip).nemn]-nd+j;
+            end
+            for j=1:length(emn)
+                dKdx{emn(j)}(en,en)=dKdx{emn(j)}(en,en)+...
+                    (pCon.E-mmCon.EMin)*oCon.p*drhoVec(i,emn(j))*rhoVec(i)^(oCon.p-1)*Ke{(ic-1)*mCon.nG^2+ip}; 
             end
         end
-   end
+    end
 end
 
 time1=toc; %Assembly timer

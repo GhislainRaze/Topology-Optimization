@@ -50,7 +50,7 @@ function  [xs,fs,gs,us] = trueMinimum(x0,f0,g0,x1,objectiveFunction,...
         
         xs = x0+ls*s0;
         if massC
-            [xs,changedDirection] = checkFeasability(xs,x0);
+            [xs,changedDirection] = checkFeasability(xs);
             [fs,gs,us] = objectiveFunction(xs);
             if changedDirection
                 s0 = (xs-x0)/norm(xs-x0);

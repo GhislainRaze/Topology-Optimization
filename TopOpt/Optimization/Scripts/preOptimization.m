@@ -23,7 +23,7 @@ if method == 1
         [Ke,f,G,q,K]=EFGUnitMatrices();
         disp('Unit matrices computed')
         if oCon.filter && ~oCon.filterIter 
-            [H,Hs] = filterInitialization(cells,mCon.nG,mmCon.rmin);
+            [H,Hs] = filterInitialization(cells,mCon.nG,oCon.rmin);
             filterEnabled = true;
             disp('Filter enabled')
         else
@@ -37,7 +37,7 @@ if method == 1
         [Ke,f,ubar,K]=FEMUnitMatrices();
         disp('Unit matrices computed')
         if oCon.filter && ~oCon.filterIter 
-            [H,Hs] = filterInitialization(cells,mCon.nG,mmCon.rmin);
+            [H,Hs] = filterInitialization(cells,mCon.nG,oCon.rmin);
             filterEnabled = true;
             disp('Filter enabled')
         else
@@ -50,7 +50,7 @@ if method == 1
     end
 
 % Check mesh and mass distribution
-volFrac = mmCon.vol/pCon.vol;
+volFrac = mmCon.mMax/pCon.vol;
 disp(['Volume fraction: ',num2str(100*volFrac),'%'])
 a = min(mmCon.dx,mmCon.dy)/max(mCon.dx,mCon.dy);
 if a < 1

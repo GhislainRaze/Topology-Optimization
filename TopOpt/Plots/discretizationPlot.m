@@ -46,7 +46,7 @@
     end
     u = [];
     if mCon.mp~=0
-        for i=mCon.mb+1:mCon.mb+mCon.mp
+        for i=length(pCon.pLoad)
             for j=1:bcells(i).ni
                 x=[x; bcells(i).int(j).x(1) bcells(i).int(j).x(2)];
                 u = [u;pCon.pLoad(i).F'];

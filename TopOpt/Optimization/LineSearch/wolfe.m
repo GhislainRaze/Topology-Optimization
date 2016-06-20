@@ -57,7 +57,7 @@ function  [xs,fs,gs,us] = wolfe(x0,f0,g0,x1,objectiveFunction,iterMax,massC)
         ls = cubicApproximation(0,norm(x1-x0),f0,f1,gp0,gp1);
         xs = x0+ls*s0;
         if massC
-            [xs,changedDirection] = checkFeasability(xs,x0);
+            [xs,changedDirection] = checkFeasability(xs);
             [fs,gs,us] = objectiveFunction(xs);
             if changedDirection
                 s0 = (xs-x0)/norm(xs-x0);

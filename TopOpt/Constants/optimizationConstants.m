@@ -36,7 +36,7 @@
 % structural members are used)
 
 % Algorithm parameters
-oCon.iterMax = 400;                             % Maximum number of iteration
+oCon.iterMax = 500;                             % Maximum number of iteration
 oCon.relTol = 1e-6;                             % Maximum tolerance on the relative
                                                 % compliance change
 oCon.xTol = 1e-6;                               % Maximum tolerance on the variables
@@ -53,7 +53,7 @@ oCon.iterWolfe = 20;                            % Number of iterations for the s
                                                 % of a minimum with Wolfe criteria
 
 % Penalization
-oCon.p = 3;                                     % Intermediate density penalization
+oCon.p = 1;                                     % Intermediate density penalization
 oCon.continuation = false;                      % Continuation
 if oCon.continuation
     oCon.pMax = oCon.p;
@@ -61,15 +61,15 @@ if oCon.continuation
 end
 
 % Filtering
-oCon.filter = false;                            % Density filter
+oCon.filter = true;                            % Density filter
 oCon.rmin = 0.3;                                % Radius under which the variations
                                                 % are filtered
-oCon.filterIter = 100;                          % Number of iterations after which the
+oCon.filterIter = 1000;                          % Number of iterations after which the
                                                 % filter is enabled
 oCon.relTolFilter = 1e-6;                       % Maximum tolerance on the relative
                                                 % compliance change after which the
                                                 % filter is enabled
                                                 
 % Mass constraint                                                
-oCon.relaxation = 1.001;                        % Relaxation factor for the mass constraint
-oCon.mu = 0.0001;                               % Factor for the log barrier (should be small)
+oCon.relaxation = 1.01;                        % Relaxation factor for the mass constraint
+oCon.mu = 0.01;                               % Factor for the log barrier (should be small)

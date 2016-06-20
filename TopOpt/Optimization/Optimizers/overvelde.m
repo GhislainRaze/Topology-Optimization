@@ -39,7 +39,7 @@ function history = overvelde(distrType,method)
         x0p = x0 + v*dt;
         
         if distrType >= 3
-        	x0p = checkFeasability(x0p,x0);
+        	x0p = checkFeasability(x0p);
         end
         [C0p,dCdx0p,u0] = objectiveFunction(x0p);
         postIteration;

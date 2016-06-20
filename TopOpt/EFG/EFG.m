@@ -125,19 +125,17 @@ if filter
     
     % Assembly
     for i = 1 : length(rhoVec)
-        if ~rhoVec(i)
-            ic = ceil(i/mCon.nG^2);
-            ip = mod(i-1,mCon.nG^2)+1;
-            en=zeros(1,2*length(cells(ic).int(ip).nen));
-            en(1:2:end-1)=2*[cells(ic).int(ip).nen]-1;      % x index of neighboring cells
-            en(2:2:end)=2*[cells(ic).int(ip).nen];          % y index
-            K(en,en)=K(en,en)+(pCon.E-mmCon.EMin)*rhoVec(i)^oCon.p*Ke{(ic-1)*mCon.nG^2+ip};
-            if computeDerivatives
-                emn = massNodes(drhoVec ~= 0);
-                for j=1:length(emn)
-                    dKdx{emn(j)}(en,en)=dKdx{emn(j)}(en,en)+...
-                        sparse((pCon.E-mmCon.EMin)*oCon.p*drhoVec(i,emn(j))*rhoVec(i)^(oCon.p-1)*Ke{(ic-1)*mCon.nG^2+ip});  
-                end
+        ic = ceil(i/mCon.nG^2);
+        ip = mod(i-1,mCon.nG^2)+1;
+        en=zeros(1,2*length(cells(ic).int(ip).nen));
+        en(1:2:end-1)=2*[cells(ic).int(ip).nen]-1;      % x index of neighboring cells
+        en(2:2:end)=2*[cells(ic).int(ip).nen];          % y index
+        K(en,en)=K(en,en)+(pCon.E-mmCon.EMin)*rhoVec(i)^oCon.p*Ke{(ic-1)*mCon.nG^2+ip};
+        if computeDerivatives
+            emn = massNodes(drhoVec ~= 0);
+            for j=1:length(emn)
+                dKdx{emn(j)}(en,en)=dKdx{emn(j)}(en,en)+...
+                    sparse((pCon.E-mmCon.EMin)*oCon.p*drhoVec(i,emn(j))*rhoVec(i)^(oCon.p-1)*Ke{(ic-1)*mCon.nG^2+ip});  
             end
         end
    end

@@ -16,7 +16,7 @@
 
 
 function history = matlabGa(distrType,method)
-    global mnodes oCon mCon mmCon pCon
+    global mnodes oCon mCon mmCon pCon cells
 
     history.x = [];
     history.C = [];
@@ -26,7 +26,7 @@ function history = matlabGa(distrType,method)
         [Ke,f,G,q,K]=EFGUnitMatrices();
         disp('Unit matrices computed')
         if oCon.filter && ~oCon.filterIter 
-            [H,Hs] = filterInitialization(cells,mCon.nG,mmCon.rmin);
+            [H,Hs] = filterInitialization(cells,mCon.nG,oCon.rmin);
             filterEnabled = true;
             disp('Filter enabled')
         else
@@ -40,7 +40,7 @@ function history = matlabGa(distrType,method)
         [Ke,f,ubar,K]=FEMUnitMatrices();
         disp('Unit matrices computed')
         if oCon.filter && ~oCon.filterIter 
-            [H,Hs] = filterInitialization(cells,mCon.nG,mmCon.rmin);
+            [H,Hs] = filterInitialization(cells,mCon.nG,oCon.rmin);
             filterEnabled = true;
             disp('Filter enabled')
         else
@@ -53,7 +53,7 @@ function history = matlabGa(distrType,method)
     end
 
     % Check mesh and mass distribution
-    volFrac = mmCon.vol/pCon.vol;
+    volFrac = mmCon.mMax/pCon.vol;
     disp(['Volume fraction: ',num2str(100*volFrac),'%'])
     a = min(mmCon.dx,mmCon.dy)/max(mCon.dx,mCon.dy);
     if a < 1
@@ -72,22 +72,24 @@ function history = matlabGa(distrType,method)
     LB = zeros(nd*length(mnodes),1);
     UB = LB;
     
-    
     UB(1:nd:end-nd+1) = pCon.Lx;
     LB(2:nd:end-nd+2) = -pCon.Ly/2;
     UB(2:nd:end-nd+2) = pCon.Ly/2;
     if distrType >= 2
-        UB(3:nd:end-nd+3) = pi;
+        LB(3:nd:end-nd+3) = -pi/2;
+        UB(3:nd:end-nd+3) = pi/2;
     end
     if distrType == 3
         UB(4:nd:end-1) = inf;
         UB(5:nd:end) = inf;
     end
     
-    %pop = 10*length(mnodes);
-    %'PopulationSize',pop,
+    x0 = mnodesToVector(mnodes,distrType);
+    pop = 2*length(x0);
+    
     opt = gaoptimset('Generations',oCon.iterMax,...
-            'Display','iter','OutputFcn',@outfun);
+            'Display','iter','OutputFcn',@outfun,...
+            'InitialPopulation',x0','PopulationSize',pop);
     
     tic2 = tic;
     

@@ -39,20 +39,20 @@
 function [mmCon,mnodes] = massConstants(pCon,mCon)
 
     % Meshless mass constants
-    mmCon.nx=2*pCon.Lx;                             % Number of mass nodes along the width
+    mmCon.nx=6*pCon.Lx;                             % Number of mass nodes along the width
     mmCon.ny=3*pCon.Ly;                             % Number of mass nodes along the height
     mmCon.n=mmCon.nx*mmCon.ny;                      % Total number of mass nodes
     mmCon.d=1.5;                                    % Relative smoothing length
     mmCon.m = mCon.m;                               % Number of integration cells
     mmCon.EMin = 1e-9;                              % Minimum Young's modulus
     mmCon.rhoMax = 1.05;                             % Maximum density
-    mmCon.distrType = 4;                            % Distribution type (1: in a rectangle, 2: random, 3: semi-random)
+    mmCon.distrType = 1;                            % Distribution type (1: in a rectangle, 2: random, 3: semi-random)
     
 
     
     % Nodes distribution parameters
     mmCon.Lx = 3*pCon.Lx/4;                             % Rectangle length
-    mmCon.Ly = pCon.Ly/4;                           % Rectangle height
+    mmCon.Ly = pCon.Ly/3;                           % Rectangle height
     mmCon.drn = 0.001*sqrt(mmCon.Lx^2 + mmCon.Ly^2);% Semi-random maximal radius
     mmCon.vol = mmCon.Lx*mmCon.Ly;                  % Volume of the structure
     
@@ -64,7 +64,7 @@ function [mmCon,mnodes] = massConstants(pCon,mCon)
         mmCon.dx = pCon.Lx;
     end
     if mmCon.ny ~= 1
-        mmCon.y0 = -mmCon.Ly/2;                     % Rectangle low left corner y coordinate
+        mmCon.y0 = -mmCon.Ly/2;           % Rectangle low left corner y coordinate
         mmCon.dy=mmCon.Ly/(mmCon.ny-1);             % Vertical distance between
     else
         mmCon.y0 = 0;
@@ -80,7 +80,7 @@ function [mmCon,mnodes] = massConstants(pCon,mCon)
     mnodes = struct;
     for i=1:mmCon.n
         mnodes(i).x=[];
-        mnodes(i).theta=0.0001;
+        mnodes(i).theta=0;
         mnodes(i).l = 2*[mmCon.dm(1);mmCon.dm(2)];
         mnodes(i).m = mmCon.mi;
     end

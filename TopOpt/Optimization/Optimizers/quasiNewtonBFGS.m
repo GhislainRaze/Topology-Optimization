@@ -28,7 +28,7 @@ function history = quasiNewtonBFGS(distrType,method)
             x1 = x0 + s0;
         end
         if distrType >= 3
-            x1 = checkFeasability(x1,x0);
+            x1 = checkFeasability(x1);
         end
         if oCon.trueMinimum
             [x0p,C0p,dCdx0p,u0] = trueMinimum(x0,C0,dCdx0,x1,...

@@ -15,28 +15,27 @@
 % true if _x1_ has changed.
 
 
-function [x1,x1Changed] = checkFeasability(x1,x0)
+function [x1,x1Changed] = checkFeasability(x1)
 
-    global oCon
+    global oCon mmCon
     
     x1Changed = false;
-    
-    % Compute the mass constraint and gradient
     [cm,dcmdx] = massConstraint(x1,oCon.relaxation);
-    
-    % Subtrack the constraint gradient
-    if cm <=0
-        step0 = 1.01*dcmdx'*(x1-x0)/(norm(dcmdx)^2);
-        step = step0;
+    if cm < 0
         x1Changed = true;
-        while cm <= 0
-            x1 = x1 - step*dcmdx;
-            if step > 1e-10
-            	cm = massConstraint(x1,oCon.relaxation);
-            else
-                [cm,dcmdx] = massConstraint(x1,oCon.relaxation);
-            end
-            step = 0.01*step0;
+        nm = length(x1)/5;
+        ind = zeros(2*nm,1);
+        for i = 1 : nm
+            ind(2*i-1) = 5*i-1;
+            ind(2*i) = 5*i;
         end
+        H = mmCon.rm/4*sparse(kron(eye(nm),[0 1; 1 0]));
+        
+        a = 0.5*dcmdx(ind)'*H*dcmdx(ind);
+        b = dcmdx(ind)'*H*x1(ind);
+        
+        alpha = (-b - sqrt(b^2+4*a*cm))/(2*a);
+        
+        x1(ind) = x1(ind) + 1.1*alpha*dcmdx(ind);
     end
 end

@@ -11,7 +11,6 @@ clear all
 close all
 clc
 
-profile on
 
 %% Build path
 addpath('Optimization/');
@@ -30,7 +29,7 @@ addpath('Plots/Postprocessing/');
 addpath('Display/');
 
 %% Load case
-loadCase = 'loadCase4';     % The corresponding file must exist
+loadCase = 'loadCase1';     % The corresponding file must exist
 
 %% Method, material distribution and optimization algorithm
 % The elastic problem can be discretized thanks to three different methods
@@ -38,13 +37,13 @@ loadCase = 'loadCase4';     % The corresponding file must exist
 % or the Improved Interpolating EFG (IIEFG) method.
 %
 % The material distribution 
-methodChoice = 2;           % 1: EFG, 2: FEM, 3: IIEFG 
-massChoice = 3;             % 1: Mass nodes, 2: Undeformable structural 
+methodChoice = 2;           % 1: EFG, 2: FEM
+massChoice = 1;             % 1: Mass nodes, 2: Undeformable structural 
                             % members, 3: Deformable structural members 
 optimChoice = 5;            % 1: Overvelde's algorithm, 2: steepest descent,
                             % 3: conjugated gradients, 4: quasi Newton
-                            % BFGS, 5: Matlab fminunc or fmincon, 6: Matlab
-                            % ga.
+                            % BFGS, 5: Matlab fminunc or fmincon 
+                            % (recommanded), 6: Matlab ga.
                             
                             
 %% Plots
@@ -121,6 +120,3 @@ end
 
 %% Postprocessing
 endPlots;
-
-profile off
-stats = profile('info');

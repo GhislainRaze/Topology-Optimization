@@ -58,19 +58,16 @@ K = sparse(K);
 for ic=1:mCon.mb+mCon.mp
     if bcells(ic).BC==2 || bcells(ic).BC==4
         for ip=1:bcells(ic).ni
-            ncc = bcells(ic).int(ip).nec;
-            for i = 1 : length(ncc)
-                nc = ncc(i);
-                T=zeros(2*length(cells(nc).nen),1);
-                en=zeros(1,2*length(cells(nc).nen));
-                coord = 2*(bcells(ic).int(ip).x-cells(nc).x)./cells(nc).dx;
-                phi=FEMShape(coord,length(cells(nc).nen));
-                for neni=1:length(cells(nc).nen)
-                    T(2*neni-1:2*neni)=phi(neni).*bcells(ic).int(ip).bv;
-                    en(2*neni-1:2*neni)=[2*cells(nc).nen(neni)-1; 2*cells(nc).nen(neni)];
-                end
-                f(en)=f(en)+T*bcells(ic).int(ip).w*bcells(ic).J;
+            nc = bcells(ic).int(ip).nec(1);
+            T=zeros(2*length(cells(nc).nen),1);
+            en=zeros(1,2*length(cells(nc).nen));
+            coord = 2*(bcells(ic).int(ip).x-cells(nc).x)./cells(nc).dx;
+            phi=FEMShape(coord,length(cells(nc).nen));
+            for neni=1:length(cells(nc).nen)
+                T(2*neni-1:2*neni)=phi(neni).*bcells(ic).int(ip).bv;
+                en(2*neni-1:2*neni)=[2*cells(nc).nen(neni)-1; 2*cells(nc).nen(neni)];
             end
+            f(en)=f(en)+T*bcells(ic).int(ip).w*bcells(ic).J;
         end  
     end
 end

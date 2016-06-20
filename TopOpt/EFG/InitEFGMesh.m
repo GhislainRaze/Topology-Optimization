@@ -266,7 +266,7 @@ while ag==1
             bcells(i).x = pCon.pLoad(j).x;
             bcells(i).J = 1;
             bcells(i).int(1).x = bcells(i).x;
-            bcells(i).int(1).w = 2;
+            bcells(i).int(1).w = 1;
             bcells(i).int(1).bv = pCon.pLoad(j).F;
         end
     end

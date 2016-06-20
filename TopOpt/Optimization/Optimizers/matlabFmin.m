@@ -19,7 +19,7 @@
 
 function history = matlabFmin(distrType,method)
      
-    global mnodes oCon mCon mmCon pCon
+    global mnodes oCon mCon mmCon pCon cells
 
     history.x = [];
     history.C = [];
@@ -29,7 +29,7 @@ function history = matlabFmin(distrType,method)
         [Ke,f,G,q,K]=EFGUnitMatrices();
         disp('Unit matrices computed')
         if oCon.filter && ~oCon.filterIter 
-            [H,Hs] = filterInitialization(cells,mCon.nG,mmCon.rmin);
+            [H,Hs] = filterInitialization(cells,mCon.nG,oCon.rmin);
             filterEnabled = true;
             disp('Filter enabled')
         else
@@ -43,7 +43,7 @@ function history = matlabFmin(distrType,method)
         [Ke,f,ubar,K]=FEMUnitMatrices();
         disp('Unit matrices computed')
         if oCon.filter && ~oCon.filterIter 
-            [H,Hs] = filterInitialization(cells,mCon.nG,mmCon.rmin);
+            [H,Hs] = filterInitialization(cells,mCon.nG,oCon.rmin);
             filterEnabled = true;
             disp('Filter enabled')
         else
@@ -58,7 +58,7 @@ function history = matlabFmin(distrType,method)
     x0 = mnodesToVector(mnodes,distrType);
     
     % Check mesh and mass distribution
-    volFrac = mmCon.vol/pCon.vol;
+    volFrac = mmCon.mMax/pCon.vol;
     disp(['Volume fraction: ',num2str(100*volFrac),'%'])
     a = min(mmCon.dx,mmCon.dy)/max(mCon.dx,mCon.dy);
     if a < 1
@@ -83,7 +83,8 @@ function history = matlabFmin(distrType,method)
     LB(2:nd:end-nd+2) = -pCon.Ly/2;
     UB(2:nd:end-nd+2) = pCon.Ly/2;
     if distrType >= 2
-        UB(3:nd:end-nd+3) = pi;
+        LB(3:nd:end-nd+3) = -pi/2;
+        UB(3:nd:end-nd+3) = pi/2;
     end
     if distrType == 3
         Lmin = min(2*mCon.dx,2*mCon.dy);
@@ -96,18 +97,27 @@ function history = matlabFmin(distrType,method)
     tic2 = tic;
     
     if distrType <3
+        % Setting 'LargeScale' to 'off' seems to be faster and to yield
+        % lower compliance values (but there are more iterations)
         opt = optimset('GradObj','on','Display','iter',...
-            'MaxIter',oCon.iterMax,'OutputFcn',@outfun,...
-            'TolFun',oCon.relTol,'TolX',oCon.xTol);
-        fminunc(objectiveFunction,x0,opt);
+            'OutputFcn',@outfun,'LargeScale','off');
+        x0 = fminunc(objectiveFunction,x0,opt);
+        if filterEnabled && oCon.filterIter
+            oCon.iterMax = oCon.iterMax - length(history.C);
+            fminunc(objectiveFunction,x0,opt);
+        end
     else
         % The algorithms 'interior-point' and 'sqp' work fine,
         % 'interior-point' is faster
         opt = optimset('GradObj','on','GradConstr','on','Display','iter',...
-            'MaxIter',oCon.iterMax,'OutputFcn',@outfun,...
-            'TolFun',oCon.relTol,'TolX',oCon.xTol,'Algorithm','interior-point');
-        fmincon(objectiveFunction,x0,[],[],[],[],LB,UB,...
+            'OutputFcn',@outfun,'Algorithm','interior-point');
+        x0 = fmincon(objectiveFunction,x0,[],[],[],[],LB,UB,...
             @matlabMassConstraint,opt);
+        if filterEnabled && oCon.filterIter
+            oCon.iterMax = oCon.iterMax - length(history.C);
+            fmincon(objectiveFunction,x0,[],[],[],[],LB,UB,...
+                @matlabMassConstraint,opt);
+        end
     end
     
     time = toc(tic2);
@@ -128,6 +138,51 @@ function history = matlabFmin(distrType,method)
                 % value with history.
                 history.C = [history.C, optimValues.fval];
                 history.x = [history.x, x];
+                
+                if ~filterEnabled && optimValues.iteration == oCon.filterIter && oCon.filter
+                    [H,Hs] = filterInitialization(cells,mCon.nG,oCon.rmin);
+                    filterEnabled = true;
+                    disp('Filter enabled')
+                    if method == 1
+                        objectiveFunction = @(x) complianceEFG(x,distrType,Ke,f,G,q,K,...
+                            H,Hs,false);
+                    elseif method == 2
+                       objectiveFunction = @(x) complianceFEM(x,distrType,Ke,f,ubar,K,...
+                            H,Hs,false); 
+                    end
+                    stop = true;
+                end
+                
+                if optimValues.iteration > 1 && abs(history.C(end-1)-history.C(end))/history.C(end-1) < oCon.relTol
+                     if ~filterEnabled && oCon.filter
+                        [H,Hs] = filterInitialization(cells,mCon.nG,oCon.rmin);
+                        filterEnabled = true;
+                        disp('Filter enabled')
+                        if method == 1
+                            objectiveFunction = @(x) complianceEFG(x,distrType,Ke,f,G,q,K,...
+                                H,Hs,false);
+                        elseif method == 2
+                           objectiveFunction = @(x) complianceFEM(x,distrType,Ke,f,ubar,K,...
+                                H,Hs,false); 
+                        end
+                        stop = true;
+                     else
+                        stop = true;
+                        disp(['Algorithm ended after ',num2str(optimValues.iteration),...
+                        ' iterations, maximum relative tolerance on objective function reached']);
+                     end
+                    
+                end    
+                if optimValues.iteration == oCon.iterMax     
+                    stop = true;
+                    disp(['Algorithm ended after ',num2str(optimValues.iteration),...
+                    ' iterations, maximum number of iterations reached']);
+                end
+                if optimValues.iteration > max(1,oCon.iterMax/20) && max(abs(history.x(:,end-1)-x)) < oCon.xTol
+                    stop = true;
+                    disp(['Algorithm ended after ',num2str(optimValues.iteration),...
+                    ' iterations, maximum tolerance on variables reached']);
+                end
             otherwise
         end
     end
