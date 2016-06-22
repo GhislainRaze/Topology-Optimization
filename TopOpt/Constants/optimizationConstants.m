@@ -61,7 +61,7 @@ if oCon.continuation
 end
 
 % Filtering
-oCon.filter = true;                            % Density filter
+oCon.filter = false;                            % Density filter
 oCon.rmin = 0.3;                                % Radius under which the variations
                                                 % are filtered
 oCon.filterIter = 1000;                          % Number of iterations after which the

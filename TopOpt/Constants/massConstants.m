@@ -39,8 +39,8 @@
 function [mmCon,mnodes] = massConstants(pCon,mCon)
 
     % Meshless mass constants
-    mmCon.nx=6*pCon.Lx;                             % Number of mass nodes along the width
-    mmCon.ny=3*pCon.Ly;                             % Number of mass nodes along the height
+    mmCon.nx=3*pCon.Lx;                             % Number of mass nodes along the width
+    mmCon.ny=2*pCon.Ly;                             % Number of mass nodes along the height
     mmCon.n=mmCon.nx*mmCon.ny;                      % Total number of mass nodes
     mmCon.d=1.5;                                    % Relative smoothing length
     mmCon.m = mCon.m;                               % Number of integration cells
