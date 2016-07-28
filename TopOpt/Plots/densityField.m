@@ -65,7 +65,7 @@ function [rho,X,Y,xi] = densityField(x,distrType,n)
                     dminn = dmi(:,nemn);
                     minn = mi(nemn);
 
-                    rho(ii,jj) = asymptoticDensity(xj,xinn,thetainn,dminn,minn,...
+                    rho(ii,jj) = asymptoticDensity(xj,xinn,thetainn,dminn,mmCon.rm,...
                         mmCon.rhoMax,distrType);
                     
                 else
@@ -158,8 +158,8 @@ function [rho,X,Y,xi] = densityField(x,distrType,n)
                         dminn = dmi(:,nemn);
                         minn = mi(nemn);
 
-                        rho(ii,jj) = asymptoticDensity(xj,xinn,thetainn,dminn,minn,...
-                            mmCon.rhoMax,distrType,false);
+                        rho(ii,jj) = asymptoticDensity(xj,xinn,thetainn,dminn,...
+                            mmCon.rm,mmCon.rhoMax,distrType,false);
                     else
                         rho(ii,jj) = 0;
                     end

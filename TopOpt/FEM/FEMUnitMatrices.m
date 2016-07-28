@@ -20,39 +20,41 @@
 % * _K_: the minimum stiffness matrix
 % * _time1_: the time to assemble the problem
 
-function [Ke,f,ubar,K,time1]=FEMUnitMatrices()
+function [Ke,f,ubar,time1]=FEMUnitMatrices()
 
 GlobalConst
 InitFEMMesh;
 tic %Assembly timer
 
-%Assembly K matrix and f vector internal cells
-Ke = cell(mCon.m*mCon.nG^2,1);
+% Assembly K matrix and f vector internal cells
+Ke = cell(mCon.nG^2,1);
 f=zeros(2*mCon.n,1);
-K=zeros(2*mCon.n);
+Fe=zeros(mCon.nG^2,2*length(cells(1).nen));
+
+% Compute the element unit stiffness matrix
+for ip=1:cells(1).ni                               % Iterations over the cell Gauss points
+    B=zeros(3,2*length(cells(1).nen));               
+    coord = 2*(cells(1).int(ip).x-cells(1).x)./cells(1).dx;
+    [phi,dphidx,dphidy]=FEMShape(coord,length(cells(1).nen));
+    B(1,1:2:end-1)=2/cells(1).dx(1)*dphidx;
+    B(2,2:2:end)=2/cells(1).dx(2)*dphidy;
+    B(3,1:2:end-1)=2/cells(1).dx(2)*dphidy;
+    B(3,2:2:end)=2/cells(1).dx(1)*dphidx;
+    Fe(ip,1:2:end-1) = phi*cells(1).int(ip).w*cells(1).J;       
+    Fe(ip,2:2:end) = Fe(ip,1:2:end-1); 
+    Ke{ip} = B'*pCon.D*B*cells(1).int(ip).w*cells(1).J;
+end
 
 for ic=1:mCon.m                                         % Iterations over the internal cells
     en=zeros(1,2*length(cells(ic).nen));
     en(1:2:end-1)=2*[cells(ic).nen]-1;              % x index of neighboring cells
     en(2:2:end)=2*[cells(ic).nen];                  % y index
     for ip=1:cells(ic).ni                               % Iterations over the cell Gauss points
-        B=zeros(3,2*length(cells(ic).nen));             
-        F=zeros(2*length(cells(ic).nen),1);
-        coord = 2*(cells(ic).int(ip).x-cells(ic).x)./cells(ic).dx;
-        [phi,dphidx,dphidy]=FEMShape(coord,length(cells(ic).nen));
-        B(1,1:2:end-1)=2/cells(ic).dx(1)*dphidx;
-        B(2,2:2:end)=2/cells(ic).dx(2)*dphidy;
-        B(3,1:2:end-1)=2/cells(ic).dx(2)*dphidy;
-        B(3,2:2:end)=2/cells(ic).dx(1)*dphidx;
-        F(1:2:end-1)=phi*cells(ic).int(ip).cv(1);       
-        F(2:2:end)=phi*cells(ic).int(ip).cv(2); 
-        Ke{(ic-1)*mCon.nG^2+ip} = B'*pCon.D*B*cells(ic).int(ip).w*cells(ic).J;
-        K(en,en) = K(en,en)+mmCon.EMin*B'*pCon.D*B*cells(ic).int(ip).w*cells(ic).J;
-        f(en)=f(en)+F*cells(ic).int(ip).w*cells(ic).J;
+        f(en(1:2:end-1))=f(en(1:2:end-1))+Fe(ip,1:2:end-1)'*cells(ic).int(ip).cv(1);
+        f(en(2:2:end))=f(en(2:2:end))+Fe(ip,2:2:end)'*cells(ic).int(ip).cv(2);
     end
 end
 
-K = sparse(K);
 
 %Assembly f vector
 for ic=1:mCon.mb+mCon.mp

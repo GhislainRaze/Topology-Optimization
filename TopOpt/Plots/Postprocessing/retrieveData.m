@@ -16,9 +16,9 @@ function history = retrieveData(history,method,distrType)
 
     % Unit matrices
     if method == 1
-        [Ke,f,G,q,K] = EFGUnitMatrices();
+        [Ke,f,G,q] = EFGUnitMatrices();
     elseif method == 2
-        [Ke,f,ubar,K] = FEMUnitMatrices();
+        [Ke,f,ubar] = FEMUnitMatrices();
     end
     
     % Compute nodal displacements and total mass
@@ -27,9 +27,9 @@ function history = retrieveData(history,method,distrType)
         vectorTomnodes(history.x(:,i),distrType);
         
         if method == 1
-            [u,~,~,mTot] = EFG(Ke,f,G,q,K,distrType,[],[],false);
+            [u,~,~,mTot] = EFG(Ke,f,G,q,distrType,[],[],false);
         elseif method == 2
-            [u,~,~,mTot] = FEM(Ke,f,ubar,K,distrType,[],[],false);
+            [u,~,~,mTot] = FEM(Ke,f,ubar,distrType,[],[],false);
         end
         
         history.u = [history.u,u];

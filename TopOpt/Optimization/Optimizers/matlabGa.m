@@ -23,7 +23,7 @@ function history = matlabGa(distrType,method)
     
     
     if method == 1
-        [Ke,f,G,q,K]=EFGUnitMatrices();
+        [Ke,f,G,q]=EFGUnitMatrices();
         disp('Unit matrices computed')
         if oCon.filter && ~oCon.filterIter 
             [H,Hs] = filterInitialization(cells,mCon.nG,oCon.rmin);
@@ -34,10 +34,10 @@ function history = matlabGa(distrType,method)
             Hs = [];
             filterEnabled = false;
         end
-        objectiveFunction = @(x) complianceEFG(x,distrType,Ke,f,G,q,K,...
+        objectiveFunction = @(x) complianceEFG(x,distrType,Ke,f,G,q,...
                 H,Hs,false,false);
     elseif method == 2
-        [Ke,f,ubar,K]=FEMUnitMatrices();
+        [Ke,f,ubar]=FEMUnitMatrices();
         disp('Unit matrices computed')
         if oCon.filter && ~oCon.filterIter 
             [H,Hs] = filterInitialization(cells,mCon.nG,oCon.rmin);
@@ -48,7 +48,7 @@ function history = matlabGa(distrType,method)
             Hs = [];
             filterEnabled = false;
         end
-        objectiveFunction = @(x) complianceFEM(x,distrType,Ke,f,ubar,K,...
+        objectiveFunction = @(x) complianceFEM(x,distrType,Ke,f,ubar,...
                 H,Hs,false,false);
     end
 

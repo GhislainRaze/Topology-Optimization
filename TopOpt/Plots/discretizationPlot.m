@@ -42,13 +42,13 @@
     end
     if ~isempty(x)
         plot(x(:,1),x(:,2),'.','color','r','linewidth',2,'markersize',16)
-        x=[];
     end
+    x=[];
     u = [];
     if mCon.mp~=0
         for i=length(pCon.pLoad)
-            for j=1:bcells(i).ni
-                x=[x; bcells(i).int(j).x(1) bcells(i).int(j).x(2)];
+            for j=1:bcells(mCon.mb+i).ni
+                x=[x; bcells(mCon.mb+i).int(j).x(1) bcells(mCon.mb+i).int(j).x(2)];
                 u = [u;pCon.pLoad(i).F'];
             end
         end

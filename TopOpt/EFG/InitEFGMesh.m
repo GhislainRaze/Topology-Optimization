@@ -311,6 +311,7 @@ while ag==1
     %Find neighbours of nodes
     for i=1:mCon.n
         nodes(i).nen=nodelabel(and(abs(x1(1,:)-nodes(i).x(1))<mCon.dm(1),abs(x1(2,:)-nodes(i).x(2))<mCon.dm(2)));
+
     end
     
 %     %Find neighbour nodes of solnodes
@@ -318,6 +319,14 @@ while ag==1
 %         solnodes(i).nen=nodelabel(and(abs(x1(1,:)-solnodes(i).x(1))<mCon.dm(1),abs(x1(2,:)-solnodes(i).x(2))<mCon.dm(2)));
 %     end
 %     
+end
+
+
+mCon.w = zeros(mCon.m*mCon.nG^2,1);
+for ic = 1 : mCon.m
+    for ip = 1 : cells(ic).ni       
+        mCon.w((ic-1)*mCon.nG^2+ip) = cells(ic).J*cells(ic).int(ip).w;
+    end
 end
 
 time1=toc; %Mesh timer

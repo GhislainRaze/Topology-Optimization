@@ -36,7 +36,7 @@
 % structural members are used)
 
 % Algorithm parameters
-oCon.iterMax = 500;                             % Maximum number of iteration
+oCon.iterMax = 100;                             % Maximum number of iteration
 oCon.relTol = 1e-6;                             % Maximum tolerance on the relative
                                                 % compliance change
 oCon.xTol = 1e-6;                               % Maximum tolerance on the variables

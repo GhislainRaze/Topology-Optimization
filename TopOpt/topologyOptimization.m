@@ -38,7 +38,7 @@ loadCase = 'loadCase1';     % The corresponding file must exist
 %
 % The material distribution 
 methodChoice = 2;           % 1: EFG, 2: FEM
-massChoice = 1;             % 1: Mass nodes, 2: Undeformable structural 
+massChoice = 3;             % 1: Mass nodes, 2: Undeformable structural 
                             % members, 3: Deformable structural members 
 optimChoice = 5;            % 1: Overvelde's algorithm, 2: steepest descent,
                             % 3: conjugated gradients, 4: quasi Newton

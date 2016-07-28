@@ -40,21 +40,21 @@
 
 
 function [ug,Compliance,dCdx,mTot,time1,time2,time3]=...
-    FEM(Ke,f,ubar,K,distrType,H,Hs,computeDerivatives)
+    FEM(Ke,f,ubar,distrType,H,Hs,computeDerivatives)
 
 GlobalConst
-if nargin < 4
-    [Ke,f,ubar,K] = FEMUnitMatrices();
+if nargin < 3
+    [Ke,f,ubar] = FEMUnitMatrices();
 end
-if nargin < 5
+if nargin < 4
     distrType = 1;
 end
-if nargin < 6 || isempty(H)
+if nargin < 5 || isempty(H)
     filter = false;
 else
     filter = true;
 end
-if nargin < 8
+if nargin < 7
     computeDerivatives = true;
 end
 
@@ -64,87 +64,52 @@ if distrType == 3
 else
     nd = distrType+1;
 end
-if computeDerivatives
-    [dKdx{1:nd*mmCon.n, 1}] = deal(sparse(2*mCon.n,2*mCon.n));
-end
-dCdx = zeros(nd*mmCon.n,1);
-mTot = 0;
 
 
-if filter
-    % If there is a filter, the densities are first computed and saved,
-    % then filtered, then the matrices are assembled.
-    massNodes = 1:nd*mmCon.n;
-    rhoVec = zeros(mCon.m*mCon.nG^2,1);
-    drhoVec = zeros(mCon.m*mCon.nG^2,nd*mmCon.n);
-end
+rhoVec = zeros(mCon.m*mCon.nG^2,1);
+drhoVec = zeros(mCon.m*mCon.nG^2,nd*mmCon.n);
+
 
 %% Assembly K matrix and f vector internal cells
 tic %Assembly timer
 for ic=1:mCon.m                                         % Iterations over the internal cells
-    en=zeros(1,2*length(cells(ic).nen));
-    en(1:2:end-1)=2*[cells(ic).nen]-1;              % x index of neighboring cells
-    en(2:2:end)=2*[cells(ic).nen];                  % y index
     for ip=1:cells(ic).ni                               % Iterations over the cell Gauss points
         if ~isempty(cells(ic).int(ip).nemn)
             emn=zeros(1,nd*length(cells(ic).int(ip).nemn));
             for i = 1:nd
                 emn(i:nd:end-nd+i)=nd*[cells(ic).int(ip).nemn]-nd+i;
             end
-            [rho,drhodx] = asymptoticDensity(cells(ic).int(ip).x,...
+            [rhoVec((ic-1)*mCon.nG^2+ip),drhoVec((ic-1)*mCon.nG^2+ip,emn)] = asymptoticDensity(cells(ic).int(ip).x,...
                 [mnodes(cells(ic).int(ip).nemn).x],...
                 [mnodes(cells(ic).int(ip).nemn).theta],...
                 [mnodes(cells(ic).int(ip).nemn).l]/2,...
-                [mnodes(cells(ic).int(ip).nemn).m],...
-                mmCon.rhoMax,distrType,true,mmCon.rm);
-            if filter
-                rhoVec((ic-1)*mCon.nG^2+ip) = rho;
-            else
-                K(en,en)=K(en,en)+(pCon.E-mmCon.EMin)*rho^oCon.p*Ke{(ic-1)*mCon.nG^2+ip};
-            end
-            mTot = mTot + rho*cells(ic).J*cells(ic).int(ip).w;
-            if computeDerivatives
-                if filter
-                    drhoVec((ic-1)*mCon.nG^2+ip,emn) = drhodx;
-                else
-                    for i=1:length(emn)
-                        dKdx{emn(i)}(en,en)=dKdx{emn(i)}(en,en)+...
-                            (pCon.E-mmCon.EMin)*oCon.p*drhodx(i)*rho^(oCon.p-1)*Ke{(ic-1)*mCon.nG^2+ip}; 
-                    end
-                end
-            end
+                mmCon.rm,mmCon.rhoMax,distrType,true);
+            
         end
     end
 end
 
+mTot = rhoVec'*mCon.w;
 
 if filter
     % Filtering
-    drhoVec = sparse(drhoVec);
     rhoVec = (H*rhoVec)./Hs;
     for i = 1 : size(drhoVec,2)
         drhoVec(:,i) = H*(drhoVec(:,i)./Hs);
     end
-    % Assembly
-    for i = 1 : length(rhoVec)
-        ic = ceil(i/mCon.nG^2);
-        ip = mod(i-1,mCon.nG^2)+1;
-        en=zeros(1,2*length(cells(ic).nen));
-        en(1:2:end-1)=2*[cells(ic).nen]-1;      % x index of neighboring cells
-        en(2:2:end)=2*[cells(ic).nen];          % y index
-        K(en,en)=K(en,en)+(pCon.E-mmCon.EMin)*rhoVec(i)^oCon.p*Ke{(ic-1)*mCon.nG^2+ip};
-        if computeDerivatives
-            emn=zeros(1,nd*length(cells(ic).int(ip).nemn));
-            for j = 1:nd
-                emn(j:nd:end-nd+j)=nd*[cells(ic).int(ip).nemn]-nd+j;
-            end
-            for j=1:length(emn)
-                dKdx{emn(j)}(en,en)=dKdx{emn(j)}(en,en)+...
-                    (pCon.E-mmCon.EMin)*oCon.p*drhoVec(i,emn(j))*rhoVec(i)^(oCon.p-1)*Ke{(ic-1)*mCon.nG^2+ip}; 
-            end
-        end
-    end
 end
+drhoVec = sparse(drhoVec);
+
+
+nEDofs = (2*length(cells(1).nen))^2;
+
+EVec = (mmCon.EMin+(pCon.E-mmCon.EMin).*rhoVec.^oCon.p);
+sK = reshape(reshape(cell2mat(Ke(:))',nEDofs,mCon.nG^2)*...
+    reshape(EVec,mCon.nG^2,mCon.m),mCon.m*nEDofs,1);
+K = sparse(mCon.iK,mCon.jK,sK);
+K = (K+K')/2;
+
+
 
 time1=toc; %Assembly timer
 
@@ -155,14 +120,8 @@ tic %Solve timer
 cn = find(~isnan(ubar));        % Constrained nodes indices
 fn = 1:2*mCon.n;                % Free nodes indices
 fn(cn) =[];
-Kic = K(fn,fn);
-Kcc = K(fn,cn);
-uc = ubar(cn);
-fc = f(fn);
 
-
-
-u=Kic\(fc-Kcc*uc);             % Solution of the linear system for the free nodes
+u=K(fn,fn)\(f(fn)-K(fn,cn)*ubar(cn));             % Solution of the linear system for the free nodes
 r = zeros(2*mCon.n,1);
 r(cn) = ubar(cn);               % Imposed nodal displacements
 r(fn) = u;                      % Computed nodal displacements
@@ -180,9 +139,18 @@ time2=toc; %Solve timer
 tic 
 Compliance=f'*r;
 if computeDerivatives
-    for i = 1 : nd*mmCon.n
-       dCdx(i) = -r'*dKdx{i}*r;
+    Ce = zeros(mCon.m*mCon.nG^2,1);
+    for ic = 1 : mCon.m
+        en=zeros(1,2*length(cells(ic).nen));
+        en(1:2:end-1)=2*[cells(ic).nen]-1;              % x index of neighboring cells
+        en(2:2:end)=2*[cells(ic).nen];                  % y index
+        for ip=1:cells(ic).ni
+            Ce((ic-1)*mCon.nG^2+ip) = r(en)'*Ke{ip}*r(en);
+        end
     end
+    dCdx = -(diag((pCon.E-mmCon.EMin).*rhoVec.^(oCon.p-1)*oCon.p)*drhoVec)'*Ce;
+else
+    dCdx = zeros(nd*mmCon.n,1);   
 end
 time3=toc;    
 end

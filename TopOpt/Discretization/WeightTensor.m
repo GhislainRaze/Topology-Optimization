@@ -12,34 +12,44 @@
 
 function [w dwdx dwdy]=WeightTensor(xj,xi,dm)
 
-alphax=2/dm(1);
-alphay=2/dm(2);
-rx = abs(xj(1)-xi(1))/dm(1);
-ry = abs(xj(2)-xi(2))/dm(2);
-drdx = sign(xj(1)-xi(1))/dm(1);
-drdy = sign(xj(2)-xi(2))/dm(2);
-if rx>1
-    wx = 0;
-    dwdrx = 0;
-elseif rx>0.5
-    wx = alphax*(4/3-4*rx+4*rx^2-4/3*rx^3);
-    dwdrx = alphax*(-4+8*rx-4*rx^2)*drdx;
-else
-    wx = alphax*(2/3-4*rx^2+4*rx^3);
-    dwdrx = alphax*(-8*rx+12*rx^2)*drdx;
-end
-if ry>1
-    wy = 0;
-    dwdry = 0;
-elseif ry>0.5
-    wy = alphay*(4/3-4*ry+4*ry^2-4/3*ry^3);
-    dwdry = alphay*(-4+8*ry-4*ry^2)*drdy;
-else
-    wy = alphay*(2/3-4*ry^2+4*ry^3);
-    dwdry = alphay*(-8*ry+12*ry^2)*drdy;
-end
+wx = zeros(1,size(xj,2));
+dwdrx = wx;
+wy = wx;
+dwdry = wx;
 
-w=wx*wy;
-dwdx=wy*dwdrx;
-dwdy=wx*dwdry;
+rx = abs(xj(1,:)-xi(1))./dm(1,:);
+ry = abs(xj(2,:)-xi(2))./dm(2,:);
+drdx = sign(xj(1,:)-xi(1))./dm(1,:);
+drdy = sign(xj(2,:)-xi(2))./dm(2,:);
+
+ind = 1:size(xj,2);
+
+indx1 = ind(rx < 0.5);
+indx2 = ind(and(rx >= 0.5 , rx < 1));
+indx3 = ind(rx >= 1);
+
+indy1 = ind(ry < 0.5);
+indy2 = ind(and(ry >= 0.5 , ry < 1));
+indy3 = ind(ry >= 1);
+
+wx(indx1) = 2/3-4*rx(indx1).^2+4*rx(indx1).^3;
+wx(indx2) = 4/3-4*rx(indx2)+4*rx(indx2).^2-4/3*rx(indx2).^3;
+wx(indx3) = 0;
+
+dwdrx(indx1) = (-8*rx(indx1)+12*rx(indx1).^2).*drdx(indx1);
+dwdrx(indx2) = (-4+8*rx(indx2)-4*rx(indx2).^2).*drdx(indx2);
+dwdrx(indx3) = 0;
+
+wy(indy1) = 2/3-4*ry(indy1).^2+4*ry(indy1).^3;
+wy(indy2) = 4/3-4*ry(indy2)+4*ry(indy2).^2-4/3*ry(indy2).^3;
+wy(indy3) = 0;
+
+dwdry(indy1) = (-8*ry(indy1)+12*ry(indy1).^2).*drdy(indy1);
+dwdry(indy2) = (-4+8*ry(indy2)-4*ry(indy2).^2).*drdy(indy2);
+dwdry(indy3) = 0;
+
+
+w=wx.*wy;
+dwdx=wy.*dwdrx;
+dwdy=wx.*dwdry;
 

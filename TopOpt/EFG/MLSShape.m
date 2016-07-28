@@ -22,7 +22,7 @@ A=zeros(pnn); dAdx=A; dAdy=A;
 w=zeros(1,nn); dwdx=w; dwdy=w;
 phi=zeros(1,nn); dphidx=phi; dphidy=phi;
 for mm=1:nn
-    [wi dwidx dwidy]=WeightTensor(y,x(mm,:),dm);
+    [wi dwidx dwidy]=WeightTensor(y,x(mm,:)',dm);
     p=MonomialBasis(x(mm,:),pn);
     pTp=p*p';
     A=A+wi*pTp;

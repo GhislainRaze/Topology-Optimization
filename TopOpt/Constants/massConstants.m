@@ -39,20 +39,20 @@
 function [mmCon,mnodes] = massConstants(pCon,mCon)
 
     % Meshless mass constants
-    mmCon.nx=3*pCon.Lx;                             % Number of mass nodes along the width
-    mmCon.ny=2*pCon.Ly;                             % Number of mass nodes along the height
+    mmCon.nx=2*pCon.Lx;                             % Number of mass nodes along the width
+    mmCon.ny=1*pCon.Ly;                             % Number of mass nodes along the height
     mmCon.n=mmCon.nx*mmCon.ny;                      % Total number of mass nodes
     mmCon.d=1.5;                                    % Relative smoothing length
     mmCon.m = mCon.m;                               % Number of integration cells
     mmCon.EMin = 1e-9;                              % Minimum Young's modulus
     mmCon.rhoMax = 1.05;                             % Maximum density
-    mmCon.distrType = 1;                            % Distribution type (1: in a rectangle, 2: random, 3: semi-random)
+    mmCon.distrType = 4;                            % Distribution type (1: in a rectangle, 2: random, 3: semi-random)
     
 
     
     % Nodes distribution parameters
-    mmCon.Lx = 3*pCon.Lx/4;                             % Rectangle length
-    mmCon.Ly = pCon.Ly/3;                           % Rectangle height
+    mmCon.Lx = pCon.Lx/3;                             % Rectangle length
+    mmCon.Ly = pCon.Ly/6;                           % Rectangle height
     mmCon.drn = 0.001*sqrt(mmCon.Lx^2 + mmCon.Ly^2);% Semi-random maximal radius
     mmCon.vol = mmCon.Lx*mmCon.Ly;                  % Volume of the structure
     

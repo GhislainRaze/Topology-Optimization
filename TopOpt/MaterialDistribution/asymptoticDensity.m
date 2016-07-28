@@ -44,8 +44,8 @@
 % $$ \rho^{m}(\mathbf{x}) = \rho_{Min} +
 % (1-\rho_{Min})\rho^{as}(\rho(\mathbf{x})) $$
 
-function [rhoA,drhoAdx] = asymptoticDensity(xj,xi,thetai,dmi,mi,rhoMax,...
-    distrType,computeDerivatives,rm)
+function [rhoA,drhoAdx] = asymptoticDensity(xj,xi,thetai,dmi,rm,rhoMax,...
+    distrType,computeDerivatives)
 
     if nargin < 7
         distrType = 1;
@@ -63,39 +63,30 @@ function [rhoA,drhoAdx] = asymptoticDensity(xj,xi,thetai,dmi,mi,rhoMax,...
     end
     
     drhodx = zeros(1,nd*nn);
-    rho = 0;
     
     % Density and its derivatives evaluation
-    for mm = 1 : nn
-        ci = cos(thetai(mm));
-        si = sin(thetai(mm));
-        cxi = (xj(1)-xi(1,mm))*ci;
-        cyi = (xj(2)-xi(2,mm))*ci;
-        sxi = (xj(1)-xi(1,mm))*si;
-        syi = (xj(2)-xi(2,mm))*si;
+    ci = cos(thetai);
+    si = sin(thetai);
+    cxi = (xj(1)-xi(1,:)).*ci;
+    cyi = (xj(2)-xi(2,:)).*ci;
+    sxi = (xj(1)-xi(1,:)).*si;
+    syi = (xj(2)-xi(2,:)).*si;
+
+    r1 = cxi + syi;
+    r2 = -sxi + cyi;
         
-        r1 = cxi + syi;
-        r2 = -sxi + cyi;
-        
-        [wi dwidx dwidy] = WeightTensor([r1;r2],zeros(2,1),dmi(:,mm));
-        
-        
-        rho = rho+mi(mm)*wi;
-        if computeDerivatives
-            drhodx(nd*(mm-1)+1) = mi(mm)*(-ci*dwidx +...
-                                                 si*dwidy);
-            drhodx(nd*(mm-1)+2) = -mi(mm)*(si*dwidx +...
-                                                 ci*dwidy);
-            if distrType >= 2
-                drhodx(nd*(mm-1)+3) = mi(mm)*...
-                    ((-sxi+cyi)*dwidx -(cxi+syi)*dwidy);
-            end
-            if distrType == 3
-                drhodx(nd*(mm-1)+4) = (rm/2*dmi(2,mm)*wi -...
-                                        mi(mm)*(wi+(cxi+syi)*dwidx)/(2*dmi(1,mm)));
-                drhodx(nd*mm) = (rm/2*dmi(1,mm)*wi -...
-                                        mi(mm)*(wi+(-sxi+cyi)*dwidy)/(2*dmi(2,mm)));
-            end
+    [wi dwidx dwidy] = WeightTensor([r1;r2],zeros(2,1),dmi);
+    
+    rho = 4*rm*sum(wi);
+    if computeDerivatives
+        drhodx(1:nd:end-nd+1) = 4*rm*(-ci.*dwidx + si.*dwidy);
+        drhodx(2:nd:end-nd+2) = -4*rm*(si.*dwidx + ci.*dwidy);
+        if distrType >= 2
+            drhodx(3:nd:end-nd+3) = 4*rm*((-sxi+cyi).*dwidx -(cxi+syi).*dwidy);
+        end
+        if distrType == 3
+            drhodx(4:nd:end-nd+4) = -2*rm*dwidx.*(cxi+syi)./dmi(1,:);
+            drhodx(5:nd:end-nd+5) = 2*rm*dwidy.*(sxi-cyi)./dmi(2,:);
         end
     end
     
@@ -108,8 +99,7 @@ function [rhoA,drhoAdx] = asymptoticDensity(xj,xi,thetai,dmi,mi,rhoMax,...
     
     % Density derivatives
     if computeDerivatives
-        drhoAdrho = (a*(1-b)*rho.^b + a^2)./((rho.^b+a).^2);
-        drhoAdx = drhoAdrho.*drhodx;
+        drhoAdx = (a*(1-b)*rho.^b + a^2)./((rho.^b+a).^2).*drhodx;
     end
     
 

@@ -21,7 +21,7 @@
 % * _K_: the minimum stiffness matrix
 % * _time1_: the time to assemble the problem
 
-function [Ke,f,G,q,K,time1]=EFGUnitMatrices()
+function [Ke,f,G,q,time1]=EFGUnitMatrices()
 
 GlobalConst
 InitEFGMesh;
@@ -30,7 +30,6 @@ tic %Assembly timer
 %Assembly K matrix and f vector internal cells
 Ke = cell(mCon.m*mCon.nG^2,1);
 f=zeros(2*mCon.n,1);
-K=zeros(2*mCon.n);
 
 for ic=1:mCon.m                                             % Iterations over the internal cells
     for ip=1:cells(ic).ni                                   % Iterations over the cell Gauss points
@@ -48,13 +47,10 @@ for ic=1:mCon.m                                             % Iterations over th
             en(1:2:end-1)=2*[cells(ic).int(ip).nen]-1;      % x index of neighboring cells
             en(2:2:end)=2*[cells(ic).int(ip).nen];          % y index
             Ke{(ic-1)*mCon.nG^2+ip} = B'*pCon.D*B*cells(ic).int(ip).w*cells(ic).J;
-            K(en,en) = K(en,en) + mmCon.EMin*B'*pCon.D*B*cells(ic).int(ip).w*cells(ic).J;
             f(en)=f(en)+F*cells(ic).int(ip).w*cells(ic).J;
         end
     end
 end
-
-K = sparse(K);
 
 %Assembly G matrix and q vector boundary cells
 G=zeros(2*mCon.n,2*mCon.me+bcCon.BCunx+bcCon.BCuny); 

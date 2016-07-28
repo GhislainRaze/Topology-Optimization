@@ -21,8 +21,8 @@ tic %Mesh timer
 %Meshless discretization constants
 mCon.addCells = 0;                          % Background mesh domain 
                                             % multiplication factor
-mCon.mx=8*pCon.Lx;                          %Number of elements along the width
-mCon.my=8*pCon.Ly;                          %Number of elements along the height
+mCon.mx=12*pCon.Lx;                          %Number of elements along the width
+mCon.my=12*pCon.Ly;                          %Number of elements along the height
 mCon.pn=1;                                  %Element degree (1: Q4, 2: Q8, 3: Q12)
 mCon.nx=mCon.pn*mCon.mx+1+2*mCon.addCells;  % Number of discretization nodes along the width
 mCon.ny=mCon.pn*mCon.my+1+2*mCon.addCells;  % Number of discretization nodes along the height
@@ -334,7 +334,22 @@ while ag==1
         end
     end
     
-    
+ndofsE = 2*length(cells(1).nen);
+lInd = mCon.m*ndofsE^2;
+
+mCon.iK = zeros(lInd,1);
+mCon.jK = zeros(lInd,1);
+mCon.w = zeros(mCon.m*mCon.nG^2,1);
+for ic = 1 : mCon.m
+    en=zeros(ndofsE,1);
+    en(1:2:end-1)=2*[cells(ic).nen]-1;
+    en(2:2:end)=2*[cells(ic).nen];
+    mCon.iK((ic-1)*ndofsE^2+1:ic*ndofsE^2) = repmat(en,ndofsE,1);
+    mCon.jK((ic-1)*ndofsE^2+1:ic*ndofsE^2) = kron(en,ones(ndofsE,1));
+    for ip=1:cells(ic).ni    
+        mCon.w((ic-1)*mCon.nG^2+ip) = cells(ic).J*cells(ic).int(ip).w;
+    end
+end
 
     
     

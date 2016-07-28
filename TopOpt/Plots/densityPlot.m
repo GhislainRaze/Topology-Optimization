@@ -11,13 +11,14 @@
 % nodes/elements centers are represented by blue dots.
 function h = densityPlot(x,distrType,h,figureTitle)
     
-    global pCon
+    global pCon mnodes
 
-    if nargin < 1
-        x = mnodesToVector();
-    end
+    
     if nargin < 2
         distrType = 1;
+    end
+    if nargin < 1
+        x = mnodesToVector(mnodes,distrType);
     end
     if nargin < 3
         h = figure;
@@ -32,6 +33,7 @@ function h = densityPlot(x,distrType,h,figureTitle)
     hold on
     contourf(X,Y,rho,50,'linestyle','none')
     colormap gray
+    colormap(flipud(colormap))
     set(gca,'fontsize',20)
     caxis([0 1])
     colorbar('fontsize',20)

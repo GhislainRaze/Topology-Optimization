@@ -20,7 +20,7 @@ time = 0;
 
 % Objective function definition
 if method == 1
-        [Ke,f,G,q,K]=EFGUnitMatrices();
+        [Ke,f,G,q]=EFGUnitMatrices();
         disp('Unit matrices computed')
         if oCon.filter && ~oCon.filterIter 
             [H,Hs] = filterInitialization(cells,mCon.nG,oCon.rmin);
@@ -31,10 +31,10 @@ if method == 1
             Hs = [];
             filterEnabled = false;
         end
-        objectiveFunction = @(x) complianceEFG(x,distrType,Ke,f,G,q,K,...
+        objectiveFunction = @(x) complianceEFG(x,distrType,Ke,f,G,q,...
                 H,Hs,distrType>=3);
     elseif method == 2
-        [Ke,f,ubar,K]=FEMUnitMatrices();
+        [Ke,f,ubar]=FEMUnitMatrices();
         disp('Unit matrices computed')
         if oCon.filter && ~oCon.filterIter 
             [H,Hs] = filterInitialization(cells,mCon.nG,oCon.rmin);
@@ -45,7 +45,7 @@ if method == 1
             Hs = [];
             filterEnabled = false;
         end
-        objectiveFunction = @(x) complianceFEM(x,distrType,Ke,f,ubar,K,...
+        objectiveFunction = @(x) complianceFEM(x,distrType,Ke,f,ubar,...
                 H,Hs,distrType>=3);
     end
 
