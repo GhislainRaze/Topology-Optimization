@@ -23,12 +23,13 @@ function pCon = boundaryConditionsParameters(pCon)
     % Line force
     pCon.nlLoad = length(pCon.lLoad);
     for i = 1 : pCon.nlLoad
-        % Line length
-        pCon.lLoad(i).length = norm(pCon.lLoad(i).x(2,:)-pCon.lLoad(i).x(1,:));
-        % Line parametrization
-        pCon.lLoad(i).param = @(x) [interp1([0 pCon.lLoad(i).length],[pCon.lLoad(i).x(1,1) pCon.lLoad(i).x(2,1)],x,'linear');
-                          interp1([0 pCon.lLoad(i).length],[pCon.lLoad(i).x(1,2) pCon.lLoad(i).x(2,2)],x,'linear')];
-
+        if isempty(pCon.lLoad(i).param)
+            % Line length
+            pCon.lLoad(i).length = norm(pCon.lLoad(i).x(2,:)-pCon.lLoad(i).x(1,:));
+            % Line parametrization
+            pCon.lLoad(i).param = @(x) [interp1([0 pCon.lLoad(i).length],[pCon.lLoad(i).x(1,1) pCon.lLoad(i).x(2,1)],x,'linear');
+                              interp1([0 pCon.lLoad(i).length],[pCon.lLoad(i).x(1,2) pCon.lLoad(i).x(2,2)],x,'linear')];
+        end
     end
     
     % Point force

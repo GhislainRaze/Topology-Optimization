@@ -4,6 +4,10 @@
 % Cantilever beam with dimensions 1x2 and a unit downwards point load at
 % (1,0)
 
+%% Optimization type
+pCon.type = 1;                                  % 1: compliance optimization
+                                                % 2: compliant mechanism
+
 %% Dimensions
 pCon.Lx=1;                                      % Problem domain length
 pCon.Ly=2;                                      % Problem domain height

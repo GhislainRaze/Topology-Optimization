@@ -18,7 +18,6 @@
 % * _f_: the nodal force vector
 % * _ubar_: the imposed nodal displacements (set to NaN if there is no
 % imposed displacement associated to a given node)
-% * _K_: the minimum stiffness matrix
 % * _distrType_: the mass distribution type
 % * _H_: the filter convolution matrix (optional)
 % * _Hs_: the sum of the filter convolution matrix lines (optional)
@@ -74,18 +73,13 @@ drhoVec = zeros(mCon.m*mCon.nG^2,nd*mmCon.n);
 tic %Assembly timer
 for ic=1:mCon.m                                         % Iterations over the internal cells
     for ip=1:cells(ic).ni                               % Iterations over the cell Gauss points
-        if ~isempty(cells(ic).int(ip).nemn)
-            emn=zeros(1,nd*length(cells(ic).int(ip).nemn));
-            for i = 1:nd
-                emn(i:nd:end-nd+i)=nd*[cells(ic).int(ip).nemn]-nd+i;
-            end
-            [rhoVec((ic-1)*mCon.nG^2+ip),drhoVec((ic-1)*mCon.nG^2+ip,emn)] = asymptoticDensity(cells(ic).int(ip).x,...
-                [mnodes(cells(ic).int(ip).nemn).x],...
-                [mnodes(cells(ic).int(ip).nemn).theta],...
-                [mnodes(cells(ic).int(ip).nemn).l]/2,...
-                mmCon.rm,mmCon.rhoMax,distrType,true);
-            
+        emn=zeros(1,nd*length(cells(ic).int(ip).nemn));
+        for i = 1:nd
+            emn(i:nd:end-nd+i)=nd*[cells(ic).int(ip).nemn]-nd+i;
         end
+        [rhoVec((ic-1)*mCon.nG^2+ip),drhoVec((ic-1)*mCon.nG^2+ip,emn)] = asymptoticDensity(cells(ic).int(ip).x,...
+            mnodes(cells(ic).int(ip).nemn),pCon.filledRegions,mmCon.rf,...
+            mmCon.rm,mmCon.rhoMax,distrType,true);
     end
 end
 
@@ -120,11 +114,11 @@ tic %Solve timer
 cn = find(~isnan(ubar));        % Constrained nodes indices
 fn = 1:2*mCon.n;                % Free nodes indices
 fn(cn) =[];
+r = zeros(2*mCon.n,size(f,2));
 
-u=K(fn,fn)\(f(fn)-K(fn,cn)*ubar(cn));             % Solution of the linear system for the free nodes
-r = zeros(2*mCon.n,1);
+
+r(fn,:)=K(fn,fn)\(f(fn,:)-kron(K(fn,cn)*ubar(cn),ones(1,size(f,2))));             % Solution of the linear system for the free nodes
 r(cn) = ubar(cn);               % Imposed nodal displacements
-r(fn) = u;                      % Computed nodal displacements
 
 ug(:,1)=r(1:2:end-1);
 ug(:,2)=r(2:2:end);
@@ -137,7 +131,11 @@ time2=toc; %Solve timer
 %% Computing the compliance and its derivatives
 
 tic 
-Compliance=f'*r;
+if pCon.type == 1
+    Compliance=f'*r;
+elseif pCon.type == 2
+    Compliance=f(:,2)'*r(:,1);
+end
 if computeDerivatives
     Ce = zeros(mCon.m*mCon.nG^2,1);
     for ic = 1 : mCon.m
@@ -145,7 +143,11 @@ if computeDerivatives
         en(1:2:end-1)=2*[cells(ic).nen]-1;              % x index of neighboring cells
         en(2:2:end)=2*[cells(ic).nen];                  % y index
         for ip=1:cells(ic).ni
-            Ce((ic-1)*mCon.nG^2+ip) = r(en)'*Ke{ip}*r(en);
+            if pCon.type == 1
+                Ce((ic-1)*mCon.nG^2+ip) = r(en)'*Ke{ip}*r(en);
+            elseif pCon.type == 2
+                Ce((ic-1)*mCon.nG^2+ip) = r(en,2)'*Ke{ip}*r(en,1);
+            end
         end
     end
     dCdx = -(diag((pCon.E-mmCon.EMin).*rhoVec.^(oCon.p-1)*oCon.p)*drhoVec)'*Ce;

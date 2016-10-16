@@ -17,7 +17,6 @@
 % * _f_: the nodal force vector
 % * _ubar_: the imposed nodal displacements (set to NaN if there is no
 % imposed displacement associated to a given node)
-% * _K_: the minimum stiffness matrix
 % * _time1_: the time to assemble the problem
 
 function [Ke,f,ubar,time1]=FEMUnitMatrices()
@@ -28,7 +27,11 @@ tic %Assembly timer
 
 % Assembly K matrix and f vector internal cells
 Ke = cell(mCon.nG^2,1);
-f=zeros(2*mCon.n,1);
+if pCon.type == 1
+    f=zeros(2*mCon.n,1);
+elseif pCon.type == 2
+    f=zeros(2*mCon.n,2);
+end
 Fe=zeros(mCon.nG^2,2*length(cells(1).nen));
 
 % Compute the element unit stiffness matrix
@@ -47,11 +50,11 @@ end
 
 for ic=1:mCon.m                                         % Iterations over the internal cells
     en=zeros(1,2*length(cells(ic).nen));
-    en(1:2:end-1)=2*[cells(ic).nen]-1;              % x index of neighboring cells
-    en(2:2:end)=2*[cells(ic).nen];                  % y index
-    for ip=1:cells(ic).ni                               % Iterations over the cell Gauss points
-        f(en(1:2:end-1))=f(en(1:2:end-1))+Fe(ip,1:2:end-1)'*cells(ic).int(ip).cv(1);
-        f(en(2:2:end))=f(en(2:2:end))+Fe(ip,2:2:end)'*cells(ic).int(ip).cv(2);
+    en(1:2:end-1)=2*[cells(ic).nen]-1; 
+    en(2:2:end)=2*[cells(ic).nen];
+    for ip=1:cells(ic).ni                               % Body forces
+        f(en(1:2:end-1),:) =f(en(1:2:end-1),:)+kron(Fe(ip,1:2:end-1)'*cells(ic).int(ip).cv(1),ones(1,size(f,2)));
+        f(en(2:2:end),:)=f(en(2:2:end),:)+kron(Fe(ip,2:2:end)'*cells(ic).int(ip).cv(2),ones(1,size(f,2)));
     end
 end
 
@@ -69,7 +72,7 @@ for ic=1:mCon.mb+mCon.mp
                 T(2*neni-1:2*neni)=phi(neni).*bcells(ic).int(ip).bv;
                 en(2*neni-1:2*neni)=[2*cells(nc).nen(neni)-1; 2*cells(nc).nen(neni)];
             end
-            f(en)=f(en)+T*bcells(ic).int(ip).w*bcells(ic).J;
+            f(en,bcells(ic).n)=f(en,bcells(ic).n)+T*bcells(ic).int(ip).w*bcells(ic).J;
         end  
     end
 end

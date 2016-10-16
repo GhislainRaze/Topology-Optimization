@@ -16,8 +16,9 @@
 % * The Gauss points are green
 
 
-%Plot the initial configuration
-    figure, hold on
+%Plot the initial configuration 
+figure
+hold on
     %set(gcf,'Position',get(0,'ScreenSize'))
     plot([0 0 pCon.Lx pCon.Lx 0],[-pCon.Ly/2 pCon.Ly/2 pCon.Ly/2 -pCon.Ly/2 -pCon.Ly/2],'black','linewidth',2)
     for i=1:mCon.m
@@ -33,7 +34,7 @@
             x=[x; cells(i).int(j).x(1) cells(i).int(j).x(2)];
         end
     end
-    plot(x(:,1),x(:,2),'.','color','g','linewidth',2,'markersize',16)
+    plot(x(:,1),x(:,2),'.','color','g','linewidth',2,'markersize',10)
     x=[];
     for i=1:mCon.mb
         for j=1:bcells(i).ni
@@ -46,7 +47,7 @@
     x=[];
     u = [];
     if mCon.mp~=0
-        for i=length(pCon.pLoad)
+        for i=1:mCon.mp
             for j=1:bcells(mCon.mb+i).ni
                 x=[x; bcells(mCon.mb+i).int(j).x(1) bcells(mCon.mb+i).int(j).x(2)];
                 u = [u;pCon.pLoad(i).F'];
@@ -55,12 +56,37 @@
         quiver(x(:,1),x(:,2),u(:,1),u(:,2),'color','r','linewidth',2)
     end
     x=[nodes.x]';
-    plot(x(:,1),x(:,2),'o','color',[0.3 0 0.3],'linewidth',2)
+    plot(x(:,1),x(:,2),'o','color',[0.3 0 0.3],'linewidth',2,'markersize',4)
     if methodChoice == 2
         plot(x(bnodes(1,:),1),x(bnodes(1,:),2),'.','color','r','linewidth',2,'markersize',16)
     end
     x=[mnodes.x]';
     plot(x(:,1),x(:,2),'o','color','b','linewidth',2)
+    
+    for i = 1 : length(pCon.holes)
+        if pCon.holes(i).type == 1
+            line([pCon.holes(i).x0(1)-pCon.holes(i).l(1)/2 pCon.holes(i).x0(1)+pCon.holes(i).l(1)/2],...
+                [pCon.holes(i).x0(2)-pCon.holes(i).l(2)/2 pCon.holes(i).x0(2)-pCon.holes(i).l(2)/2],...
+                'LineWidth',2,'Color',[0 0 0])
+            line([pCon.holes(i).x0(1)+pCon.holes(i).l(1)/2 pCon.holes(i).x0(1)+pCon.holes(i).l(1)/2],...
+                [pCon.holes(i).x0(2)-pCon.holes(i).l(2)/2 pCon.holes(i).x0(2)+pCon.holes(i).l(2)/2],...
+                'LineWidth',2,'Color',[0 0 0])
+            line([pCon.holes(i).x0(1)+pCon.holes(i).l(1)/2 pCon.holes(i).x0(1)-pCon.holes(i).l(1)/2],...
+                [pCon.holes(i).x0(2)+pCon.holes(i).l(2)/2 pCon.holes(i).x0(2)+pCon.holes(i).l(2)/2],...
+                'LineWidth',2,'Color',[0 0 0])
+            line([pCon.holes(i).x0(1)-pCon.holes(i).l(1)/2 pCon.holes(i).x0(1)-pCon.holes(i).l(1)/2],...
+                [pCon.holes(i).x0(2)+pCon.holes(i).l(2)/2 pCon.holes(i).x0(2)-pCon.holes(i).l(2)/2],...
+                'LineWidth',2,'Color',[0 0 0])
+        elseif pCon.holes(i).type == 2
+            theta = linspace(0,2*pi,100);
+            x = pCon.holes(i).x0(1) + cos(theta)*pCon.holes(i).r;
+            y = pCon.holes(i).x0(2) + sin(theta)*pCon.holes(i).r;
+            plot(x,y,'-k','linewidth',2)
+        end
+        
+    end
+    
+    
     set(gca,'XTick',[0;pCon.Lx])
     set(gca,'YTick',[-pCon.Ly/2;0;pCon.Ly/2])
     set(gca,'XTickLabel',{'' ; ''})
@@ -68,4 +94,5 @@
     [hx,hy] = format_ticks(gca,{'\fontsize{20}0','\fontsize{20}L_x'},...
     {'\fontsize{20}-L_y/2','\fontsize{20}0','\fontsize{20}L_y/2'});
     set(gca,'fontsize',20)
+    axis equal
     title('Discretization')

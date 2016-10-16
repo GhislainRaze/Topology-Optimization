@@ -18,7 +18,6 @@
 % * _f_: the nodal force vector
 % * _G_: the lagrangian multipliers matrix
 % * _q_: the second member associated with lagrangian multipliers
-% * _K_: the minimum stiffness matrix
 % * _time1_: the time to assemble the problem
 
 function [Ke,f,G,q,time1]=EFGUnitMatrices()

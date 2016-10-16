@@ -4,6 +4,9 @@
 % L-shape problem
 
 
+%% Optimization type
+pCon.type = 1;                                  % 1: compliance optimization
+                                                % 2: compliant mechanism
 %% Dimensions
 pCon.Lx=3;                                      % Problem domain length
 pCon.Ly=1;                                      % Problem domain height

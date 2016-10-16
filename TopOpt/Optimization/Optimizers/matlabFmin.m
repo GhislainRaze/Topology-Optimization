@@ -24,7 +24,6 @@ function history = matlabFmin(distrType,method)
     history.x = [];
     history.C = [];
 
-
     if method == 1
         [Ke,f,G,q]=EFGUnitMatrices();
         disp('Unit matrices computed')
@@ -54,12 +53,12 @@ function history = matlabFmin(distrType,method)
         objectiveFunction = @(x) complianceFEM(x,distrType,Ke,f,ubar,...
                 H,Hs,false);
     end
-
+    
+    x0f = [];
     x0 = mnodesToVector(mnodes,distrType);
     
     % Check mesh and mass distribution
-    volFrac = mmCon.mMax/pCon.vol;
-    disp(['Volume fraction: ',num2str(100*volFrac),'%'])
+    disp(['Volume fraction: ',num2str(100*mmCon.volFrac),'%'])
     a = min(mmCon.dx,mmCon.dy)/max(mCon.dx,mCon.dy);
     if a < 1
         disp('Warning: the mesh is probably too coarse for the mass distribution.')
@@ -137,7 +136,7 @@ function history = matlabFmin(distrType,method)
                 % Concatenate current point and objective function
                 % value with history.
                 history.C = [history.C, optimValues.fval];
-                history.x = [history.x, x];
+                history.x = [history.x, [x ; x0f]];
                 
                 if ~filterEnabled && optimValues.iteration == oCon.filterIter && oCon.filter
                     [H,Hs] = filterInitialization(cells,mCon.nG,oCon.rmin);

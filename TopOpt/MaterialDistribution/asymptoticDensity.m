@@ -44,17 +44,50 @@
 % $$ \rho^{m}(\mathbf{x}) = \rho_{Min} +
 % (1-\rho_{Min})\rho^{as}(\rho(\mathbf{x})) $$
 
-function [rhoA,drhoAdx] = asymptoticDensity(xj,xi,thetai,dmi,rm,rhoMax,...
-    distrType,computeDerivatives)
-
+function [rhoA,drhoAdx] = asymptoticDensity(xj,mnodes,filledRegions,rf,rm,...
+    rhoMax,distrType,computeDerivatives)
+    
+    
     if nargin < 7
         distrType = 1;
     end
     if nargin < 8
         computeDerivatives = false;
     end
+    
+    % Check if there are neighboring mass nodes
+    massNodes = ~isempty(mnodes);
+    
+    if massNodes
+        xi = [mnodes.x];
+        thetai = [mnodes.theta];
+        dmi = [mnodes.l]/2;
+    else
+        xi = [];
+        thetai = [];
+        dmi = [];
+    end
+    
+    % Check if the point is in a passive region
+    rho = filledRegionsDensity(xj,filledRegions,rf);
+    if rho > 0
+        filled = true;
+    else
+        filled = false;
+    end
+    
 
-    nn = size(xi,2);
+    if ~massNodes
+        if ~filled
+           rhoA = 0;
+           drhoAdx = [];
+        else
+           rhoA = 1;
+           drhoAdx = [];
+        end
+        return
+    end
+    
     
     if distrType == 3
         nd = 5;
@@ -62,6 +95,7 @@ function [rhoA,drhoAdx] = asymptoticDensity(xj,xi,thetai,dmi,rm,rhoMax,...
         nd = distrType+1;
     end
     
+    nn = size(xi,2);
     drhodx = zeros(1,nd*nn);
     
     % Density and its derivatives evaluation
@@ -74,11 +108,17 @@ function [rhoA,drhoAdx] = asymptoticDensity(xj,xi,thetai,dmi,rm,rhoMax,...
 
     r1 = cxi + syi;
     r2 = -sxi + cyi;
-        
-    [wi dwidx dwidy] = WeightTensor([r1;r2],zeros(2,1),dmi);
+
+    [wi dwidx dwidy] = WeightTensor([r1;r2],zeros(2,1),dmi,computeDerivatives);
+
     
-    rho = 4*rm*sum(wi);
-    if computeDerivatives
+    rho = rho + 4*rm*sum(wi);
+    
+    if filled
+        
+    end
+    
+    if computeDerivatives && massNodes
         drhodx(1:nd:end-nd+1) = 4*rm*(-ci.*dwidx + si.*dwidy);
         drhodx(2:nd:end-nd+2) = -4*rm*(si.*dwidx + ci.*dwidy);
         if distrType >= 2
@@ -100,6 +140,8 @@ function [rhoA,drhoAdx] = asymptoticDensity(xj,xi,thetai,dmi,rm,rhoMax,...
     % Density derivatives
     if computeDerivatives
         drhoAdx = (a*(1-b)*rho.^b + a^2)./((rho.^b+a).^2).*drhodx;
+    else
+        drhoAdx = drhodx;
     end
     
 

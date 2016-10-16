@@ -18,8 +18,9 @@
 %
 % * _pCon.holes_: the holes in the structure. There is no node inside a
 % hole.
+% * _pCon.domains_: level-set functions describing the designable domain
 % * _pCon.vol_: the total volume of the structure (regardless of the mass
-% distribution)
+% distribution). It is computed once the discretization has been built.
 %
 % This function also defines the boundary conditions
 %
@@ -41,9 +42,13 @@ function problemConstants(loadCase)
                                  0       0       (1-pCon.nu)/2];
     
     %
+    pCon.domains = [];
+                             
+    %
     pCon.holes = [];
 
-    
+    %
+    pCon.filledRegions = [];
     %% Natural boundary conditions
     
     % Body forces
@@ -54,6 +59,9 @@ function problemConstants(loadCase)
     
     % Point forces
     pCon.pLoad = [];
+    
+    % Load groups description
+    pCon.loads = [];
     
     %% Essential boundary conditions
     
@@ -68,14 +76,7 @@ function problemConstants(loadCase)
     eval(loadCase);
     
     %% Volume computation
-    pCon.vol = pCon.Lx*pCon.Ly;
-    for i = 1 : length(pCon.holes)
-        if pCon.holes(i).type == 1
-            pCon.vol = pCon.vol - pCon.holes(i).l(1)*pCon.holes(i).l(2);
-        elseif pCon.holes(i).type == 2
-            pCon.vol = pCon.vol - pi*pCon.holes(i).r^2;
-        end
-    end
+    pCon.vol = 0;
     
     %% Boundary conditions additional parameters
     pCon = boundaryConditionsParameters(pCon);

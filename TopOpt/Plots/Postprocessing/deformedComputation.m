@@ -20,19 +20,16 @@
 % * _data{8}_: shear xy stress
 % * _data{9}_: equivalent Von Mises stress
 
-function data = deformedComputation(x,distrType,u,method,threshold,n)
+function data = deformedComputation(x,distrType,u,method,threshold)
     global pCon mCon cells nodes oCon;
     
     data = cell(11,1);
     if nargin < 5
         threshold = 0.25;
     end
-    if nargin < 6
-        n = 9;
-    end
     
     % Density evaluation
-    [rho,X,Y] = densityField(x,distrType,n);
+    [rho,X,Y] = densityField(x,distrType);
     
     % Fields initialization
     uX = nan(size(rho));

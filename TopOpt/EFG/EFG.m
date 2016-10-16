@@ -18,7 +18,6 @@
 % * _f_: the nodal force vector
 % * _G_: the lagrangian multipliers matrix
 % * _q_: the second member associated with lagrangian multipliers
-% * _K_: the minimum stiffness matrix
 % * _distrType_: the material distribution type
 % * _H_: the filter convolution matrix (optional)
 % * _Hs_: the sum of the filter convolution matrix lines (optional)
@@ -82,9 +81,7 @@ for ic=1:mCon.m                                         % Iterations over the in
                 emn(i:nd:end-nd+i)=nd*[cells(ic).int(ip).nemn]-nd+i;
             end
             [rhoVec((ic-1)*mCon.nG^2+ip),drhoVec((ic-1)*mCon.nG^2+ip,emn)] = asymptoticDensity(cells(ic).int(ip).x,...
-                [mnodes(cells(ic).int(ip).nemn).x],...
-                [mnodes(cells(ic).int(ip).nemn).theta],...
-                [mnodes(cells(ic).int(ip).nemn).l]/2,...
+                mnodes(cells(ic).int(ip).nemn),pCon.filledRegions,mmCon.rf,...
                 mmCon.rm,mmCon.rhoMax,distrType,true);
             if ~filter
                 K(en,en) = K(en,en) + (mmCon.EMin+(pCon.E-mmCon.EMin)*rhoVec((ic-1)*mCon.nG^2+ip)^oCon.p)*Ke{(ic-1)*mCon.nG^2+ip};
@@ -120,7 +117,7 @@ tic %Solve timer
 
 %Solve for the displacement constants belonging to the shape functions
 
-r=[K G;G' zeros(length(q))]\[f;q];
+r = [K G;G' zeros(length(q))]\[f;q];
 ug(:,1)=r(1:2:end-length(q)-1);
 ug(:,2)=r(2:2:end-length(q));
 
@@ -128,8 +125,12 @@ ug(:,2)=r(2:2:end-length(q));
 time2=toc; %Solve timer
 
 tic %Find error norm
- 
-Compliance=f'*r(1:end-length(q));
+
+if pCon.type == 1
+    Compliance=f'*r(1:end-length(q));
+elseif pCon.type == 2
+    Compliance=f(:,2)'*r(1:end-length(q),1);
+end
 if computeDerivatives
     Ce = zeros(mCon.m*mCon.nG^2,1);
     for ic = 1 : mCon.m
@@ -137,7 +138,11 @@ if computeDerivatives
             en=zeros(1,2*length(cells(ic).int(ip).nen));
             en(1:2:end-1)=2*[cells(ic).int(ip).nen]-1;
             en(2:2:end)=2*[cells(ic).int(ip).nen];
-            Ce((ic-1)*mCon.nG^2+ip) = r(en)'*Ke{(ic-1)*mCon.nG^2+ip}*r(en);
+            if pCon.type == 1
+                Ce((ic-1)*mCon.nG^2+ip) = r(en)'*Ke{(ic-1)*mCon.nG^2+ip}*r(en);
+            elseif pCon.type == 2
+                Ce((ic-1)*mCon.nG^2+ip) = r(en,2)'*Ke{(ic-1)*mCon.nG^2+ip}*r(en,1);
+            end
         end
     end
     dCdx = -(diag((pCon.E-mmCon.EMin)*oCon.p*rhoVec.^(oCon.p-1))*drhoVec)'*Ce;

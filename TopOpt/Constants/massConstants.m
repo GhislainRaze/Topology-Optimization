@@ -38,43 +38,50 @@
 
 function [mmCon,mnodes] = massConstants(pCon,mCon)
 
+
     % Meshless mass constants
-    mmCon.nx=2*pCon.Lx;                             % Number of mass nodes along the width
-    mmCon.ny=1*pCon.Ly;                             % Number of mass nodes along the height
-    mmCon.n=mmCon.nx*mmCon.ny;                      % Total number of mass nodes
-    mmCon.d=1.5;                                    % Relative smoothing length
+    mmCon.nx=3*pCon.Lx;                             % Number of mass nodes along the width
+    mmCon.ny=3*pCon.Ly;                             % Number of mass nodes along the height
+    mmCon.volFrac = 0.45;                           % Volume fraction
+    mmCon.fm = filledRegionsMass(pCon.filledRegions);% Fixed mass
+    mmCon.mMax = mmCon.volFrac*pCon.vol-mmCon.fm;   % Maximum mass of the mass nodes
+    mmCon.n = mmCon.nx*mmCon.ny;                    % Total number of mass nodes
+    mmCon.mi = mmCon.mMax/mmCon.n;                  % Initial mass per node 
+    mmCon.rm = 9/16;                                % Ratio between nodal influence domain and mass (set to 9/16 
+                                                    % so that the maximum value of a weight function is one). 
     mmCon.m = mCon.m;                               % Number of integration cells
     mmCon.EMin = 1e-9;                              % Minimum Young's modulus
-    mmCon.rhoMax = 1.05;                             % Maximum density
-    mmCon.distrType = 4;                            % Distribution type (1: in a rectangle, 2: random, 3: semi-random)
+    mmCon.rhoMax = 1.05;                            % Maximum density
+    mmCon.rf = 0.2;                                 % Relative smoothing length for the filled regions
+    mmCon.distrType = 4;                            % Distribution type (1: in a rectangle,
+                                                    % 2: random, 3: semi-random, 4: uniform in
+                                                    % a grid, 5: uniform in a checkerboard pattern)
     
 
     
     % Nodes distribution parameters
-    mmCon.Lx = pCon.Lx/3;                             % Rectangle length
-    mmCon.Ly = pCon.Ly/6;                           % Rectangle height
-    mmCon.drn = 0.001*sqrt(mmCon.Lx^2 + mmCon.Ly^2);% Semi-random maximal radius
-    mmCon.vol = mmCon.Lx*mmCon.Ly;                  % Volume of the structure
+    mmCon.Lx = pCon.Lx;                                 % Rectangle length
+    mmCon.Ly = pCon.Ly;                                 % Rectangle width
+    mmCon.drn = 0.001*sqrt(pCon.Lx^2 + pCon.Ly^2);      % Semi-random maximal radius
     
     if mmCon.nx ~= 1
-        mmCon.x0 = (pCon.Lx-mmCon.Lx)/2;            % Rectangle low left corner x coordinate
-        mmCon.dx=mmCon.Lx/(mmCon.nx-1);             % Horizontal distance between nodes
+        mmCon.x0 = (pCon.Lx-mmCon.Lx)/2;                % Rectangle low left corner x coordinate
     else
         mmCon.x0 = pCon.Lx/2;
-        mmCon.dx = pCon.Lx;
     end
+    mmCon.dx=pCon.Lx/mmCon.nx;                          % Horizontal distance between nodes
     if mmCon.ny ~= 1
-        mmCon.y0 = -mmCon.Ly/2;           % Rectangle low left corner y coordinate
-        mmCon.dy=mmCon.Ly/(mmCon.ny-1);             % Vertical distance between
+        mmCon.y0 = -mmCon.Ly/2;                         % Rectangle low left corner y coordinate
     else
         mmCon.y0 = 0;
-        mmCon.dy = pCon.Ly;
     end
+    mmCon.dy=pCon.Ly/mmCon.ny;                          % Vertical distance between nodes
     
-    mmCon.dm=[mmCon.d*mmCon.dx ; mmCon.d*mmCon.dy]; % Smoothing length in x and y direction, respectively.
-    mmCon.mi = mmCon.dx*mmCon.dy;                   % Mass per node     
-    mmCon.rm = 1/mmCon.d^2;                         % Ratio between nodal influence domain and mass
-    mmCon.mMax = mmCon.n*mmCon.mi;                  % Total mass of the structure
+    
+    
+    mmCon.d = sqrt(mmCon.mi/(mmCon.rm*mmCon.dx*mmCon.dy));  % Relative smoothing length
+    mmCon.dm = [mmCon.d*mmCon.dx ; mmCon.d*mmCon.dy];       % Smoothing length in x and y direction, respectively.
+    
     
     % Create mass nodes
     mnodes = struct;
@@ -85,7 +92,8 @@ function [mmCon,mnodes] = massConstants(pCon,mCon)
         mnodes(i).m = mmCon.mi;
     end
     
-    if ~isempty(pCon.holes)
+    
+    if ~isempty([pCon.holes,pCon.filledRegions])
         nodesInHoles = true;
     else
         nodesInHoles = false;
@@ -116,27 +124,35 @@ function [mmCon,mnodes] = massConstants(pCon,mCon)
                     rand()*mmCon.drn()*[cos(theta);sin(theta)];
             end
         end
-    elseif mmCon.distrType == 4
+    elseif mmCon.distrType == 4 || mmCon.distrType == 5 % Uniform distributions
+        if mmCon.distrType == 4
+            step = 1; 
+        else
+            step = 2;
+        end
+        j0 = 1;
         dx = pCon.Lx/mmCon.nx;
-        dy = pCon.Ly/mmCon.ny;
+        dy = pCon.Ly/(step*mmCon.ny);
         posx = 0:mmCon.nx-1;
-        posy = 0:mmCon.ny-1;
+        posy = 0:step*mmCon.ny-1;
         [x,y] = meshgrid(dx/2+dx*posx,-pCon.Ly/2+dy/2+dy*posy);
         nxtmp = mmCon.nx;
-        nytmp = mmCon.ny;
+        nytmp = step*mmCon.ny;
         incry = true;
-        nbNodes = 0;
         while nodesInHoles
             nodesInHoles = false;
             nbNodes = 0;
-        	for i = 1 : size(x,1)
-            	for j = 1 : size(x,2)
-                    if checkHolesNode([x(i,j);y(i,j)],pCon.holes);
+            for i = 1 : size(x,1)
+                if mmCon.distrType == 5
+                    j0 = mod(i,2)+1;
+                end
+                for j = j0 : step : size(x,2)
+                    if nodeInRegions([x(i,j);y(i,j)],[pCon.holes,pCon.filledRegions],pCon.domains);
                         nbNodes = nbNodes + 1;
                     end
                 end
             end
-            if size(x,1)*size(x,2)-nbNodes < mmCon.n
+            if size(x,1)*size(x,2)/step-nbNodes < mmCon.n
             	nodesInHoles = true;
                 if incry
                     posx = 0:nxtmp;
@@ -154,9 +170,13 @@ function [mmCon,mnodes] = massConstants(pCon,mCon)
         end
         
         k = 0;
+        i0 = 1;
         for j = 1 : size(x,2)
-            for i = 1 : size(x,1)
-                if ~checkHolesNode([x(i,j);y(i,j)],pCon.holes)
+            if mmCon.distrType == 5
+                i0 = mod(j,2)+1;
+            end
+            for i = i0 : step : size(x,1)
+                if ~nodeInRegions([x(i,j);y(i,j)],[pCon.holes,pCon.filledRegions],pCon.domains)
                     k = k +1;
                     if k > mmCon.n
                         break
@@ -171,15 +191,17 @@ function [mmCon,mnodes] = massConstants(pCon,mCon)
     end
     
     
-    % Check that there are no mass nodes in holes
+    % Check that there are no mass nodes in holes if the distribution is
+    % not uniform, and move the mass nodes in holes randomly
     
     nodesInd = 1:mmCon.n;
     nodesMoved = [];
+    nodesInHoles = true;
     
     while nodesInHoles && mmCon.distrType < 4
         for i = 1:length(nodesInd)
             nodesInHoles = false;
-            if checkHolesNode(mnodes(nodesInd(i)).x,pCon.holes)
+            if nodeInRegions(mnodes(nodesInd(i)).x,[pCon.holes,pCon.filledRegions],pCon.domains)
                 mnodes(nodesInd(i)).x = [rand()*pCon.Lx;...
                     rand()*pCon.Ly-pCon.Ly/2];
                 nodesInHoles = true;

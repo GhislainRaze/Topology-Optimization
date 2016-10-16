@@ -36,7 +36,7 @@
 % structural members are used)
 
 % Algorithm parameters
-oCon.iterMax = 100;                             % Maximum number of iteration
+oCon.iterMax = 1000;                             % Maximum number of iteration
 oCon.relTol = 1e-6;                             % Maximum tolerance on the relative
                                                 % compliance change
 oCon.xTol = 1e-6;                               % Maximum tolerance on the variables
@@ -53,7 +53,7 @@ oCon.iterWolfe = 20;                            % Number of iterations for the s
                                                 % of a minimum with Wolfe criteria
 
 % Penalization
-oCon.p = 1;                                     % Intermediate density penalization
+oCon.p = 3;                                     % Intermediate density penalization
 oCon.continuation = false;                      % Continuation
 if oCon.continuation
     oCon.pMax = oCon.p;

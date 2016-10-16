@@ -13,19 +13,16 @@
 % to 1). _np_ (optional, default value = 9) is the number of starting 
 % points for the discretization of the density field.
 
-function deformedEvolutionPlot(history,distrType,method,threshold,np)
+function deformedEvolutionPlot(history,distrType,method,threshold)
 
     if nargin < 4
         threshold = 0.25;
-    end
-    if nargin < 5
-        np = 9;
     end
     h = figure;
     mag = 0.01;
     iterMax = length(history.C)-1;
     data = deformedComputation(history.x(:,end),distrType,...
-        history.u(:,end-1:end),method,threshold,np);
+        history.u(:,end-1:end),method,threshold);
 
     txtMag = uicontrol(h,'style','text','Units','normalized','Position',...
         [1/16 1/16 3/16 1/24],'String','Magnifying factor','FontSize',10);

@@ -11,6 +11,34 @@ clear all
 close all
 clc
 
+%% Method, material distribution and optimization algorithm
+% The elastic problem can be discretized thanks to two different methods
+% : the Element-Free Galerkin (EFG) method or the Finite Element Method (FEM).
+%
+% The material distribution 
+methodChoice = 1;           % 1: EFG, 2: FEM
+massChoice = 3;             % 1: Mass nodes, 2: Undeformable structural 
+                            % members, 3: Deformable structural members 
+optimChoice = 5;            % 1: Overvelde's algorithm, 2: steepest descent,
+                            % 3: conjugated gradients, 4: quasi Newton
+                            % BFGS, 5: Matlab fminunc or fmincon 
+                            % (recommanded), 6: Matlab ga.
+
+%% Load case
+loadCase = 'AirfoilStiff';     % The corresponding file must exist
+
+
+%% Plots
+
+plotInitial = true;         % Plot the initial mass distribution
+plotFinal = true;           % Plot the final mass distribution
+plotMesh = true;            % Plot the discretization mesh
+plotDEvolution = true;      % Plot the density at given iteration
+plotCEvolution = true;      % Plot the elements contour at given iteration
+plotCompliance = true;      % Plot the compliance evolution
+plotMass = true;            % Plot the mass evolution
+plotDeformed = true;        % Plot the final deformed configuration                            
+
 
 %% Build path
 addpath('Optimization/');
@@ -28,34 +56,6 @@ addpath('Plots/Callbacks/');
 addpath('Plots/Postprocessing/');
 addpath('Display/');
 
-%% Load case
-loadCase = 'loadCase1';     % The corresponding file must exist
-
-%% Method, material distribution and optimization algorithm
-% The elastic problem can be discretized thanks to three different methods
-% : the Element-Free Galerkin (EFG) method, the Finite Element Method (FEM)
-% or the Improved Interpolating EFG (IIEFG) method.
-%
-% The material distribution 
-methodChoice = 2;           % 1: EFG, 2: FEM
-massChoice = 3;             % 1: Mass nodes, 2: Undeformable structural 
-                            % members, 3: Deformable structural members 
-optimChoice = 5;            % 1: Overvelde's algorithm, 2: steepest descent,
-                            % 3: conjugated gradients, 4: quasi Newton
-                            % BFGS, 5: Matlab fminunc or fmincon 
-                            % (recommanded), 6: Matlab ga.
-                            
-                            
-%% Plots
-
-plotInitial = true;         % Plots the initial mass distribution
-plotFinal = true;           % Plots the final mass distribution
-plotMesh = true;            % Plots the discretization mesh
-plotDEvolution = true;      % Plots the density at given iteration
-plotCEvolution = true;      % Plots the elements contour at given iteration
-plotCompliance = true;      % Plots the compliance evolution
-plotMass = true;            % Plots the mass evolution
-plotDeformed = true;        % Plots the final deformed configuration
 
 
 %% Constants initialization

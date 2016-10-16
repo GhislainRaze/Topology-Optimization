@@ -53,8 +53,7 @@ function history = matlabGa(distrType,method)
     end
 
     % Check mesh and mass distribution
-    volFrac = mmCon.mMax/pCon.vol;
-    disp(['Volume fraction: ',num2str(100*volFrac),'%'])
+    disp(['Volume fraction: ',num2str(100*mmCon.volFrac),'%'])
     a = min(mmCon.dx,mmCon.dy)/max(mCon.dx,mCon.dy);
     if a < 1
         disp('Warning: the mesh is probably too coarse for the mass distribution.')

@@ -1,0 +1,26 @@
+
+function regionsPlot(regions,color)
+
+    for i = 1 : length(regions)
+        if regions(i).type == 1
+            line([regions(i).x0(1)-regions(i).l(1)/2 regions(i).x0(1)+regions(i).l(1)/2],...
+                [regions(i).x0(2)-regions(i).l(2)/2 regions(i).x0(2)-regions(i).l(2)/2],...
+                'LineWidth',2,'Color',color)
+            line([regions(i).x0(1)+regions(i).l(1)/2 regions(i).x0(1)+regions(i).l(1)/2],...
+                [regions(i).x0(2)-regions(i).l(2)/2 regions(i).x0(2)+regions(i).l(2)/2],...
+                'LineWidth',2,'Color',color)
+            line([regions(i).x0(1)+regions(i).l(1)/2 regions(i).x0(1)-regions(i).l(1)/2],...
+                [regions(i).x0(2)+regions(i).l(2)/2 regions(i).x0(2)+regions(i).l(2)/2],...
+                'LineWidth',2,'Color',color)
+            line([regions(i).x0(1)-regions(i).l(1)/2 regions(i).x0(1)-regions(i).l(1)/2],...
+                [regions(i).x0(2)+regions(i).l(2)/2 regions(i).x0(2)-regions(i).l(2)/2],...
+                'LineWidth',2,'Color',color)
+        elseif regions(i).type == 2
+            theta = linspace(0,2*pi,100);
+            x = regions(i).x0(1) + cos(theta)*regions(i).r;
+            y = regions(i).x0(2) + sin(theta)*regions(i).r;
+            plot(x,y,'Linewidth',2,'Color',color)
+        end
+    end
+    
+end

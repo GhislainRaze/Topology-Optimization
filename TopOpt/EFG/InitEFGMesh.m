@@ -62,7 +62,6 @@ mCon.dm=[mCon.d*mCon.dx ; mCon.d*mCon.dy];  % Smoothing length in x and y direct
 mCon.mp = pCon.npbc+pCon.npLoad;            % Total number of point boundary cells
 mCon.drn=1;                                 % Diameter of semi-random distribution
 
-[mmCon,mnodes] = massConstants(pCon,mCon);
 
 % %Position in domain for which the final solution is calculated
 % sCon.snx=25;                                %Number of nodes in x direction for which the solution is calculated
@@ -102,6 +101,7 @@ for i=1:mCon.m
         cells(i).int(j).x=[];       %Coordinates of integration points 
         cells(i).int(j).nen=[];     %Neighboring nodes
         cells(i).int(j).nemn=[];    %Neighboring mass nodes
+        cells(i).int(j).nefmn=[];   %Neighboring fixed mass nodes
         cells(i).int(j).w=[];       %Weight values for each intergration point
         cells(i).int(j).cv=[];      %Body force vector
     end
@@ -284,6 +284,126 @@ while ag==1
         bcCon.BCunx=size(bcCon.BCux,2);
         bcCon.BCuny=size(bcCon.BCuy,2);
     end
+    
+    
+%% Setting domains
+[XX,YY] = meshgrid(linspace(0,pCon.Lx,mCon.mx+1),linspace(-pCon.Ly/2,pCon.Ly/2,mCon.my+1));
+remove = [];
+for d = 1: length(pCon.domains)
+    f = pCon.domains(d).f(XX,YY);
+    for i = 1 : mCon.mx
+        for j = 1 : mCon.my
+            if max(max(f(j:j+1,i:i+1))) < 0
+                remove = [remove,(i-1)*mCon.my + mod(j-1,mCon.my)+1];
+            end
+        end
+    end
+end
+    
+%% Clearing holes    
+    
+for h = 1 : length(pCon.holes)
+    if pCon.holes(h).type == 1                            % Rectangle
+        xdHole = pCon.holes(h).x0 - pCon.holes(h).l/2;
+        xuHole = pCon.holes(h).x0 + pCon.holes(h).l/2;
+        for i = 1:mCon.m                            % Removing cells
+            if pCon.holes(h).coverBoundary
+                tmp = min(cells(i).x+cells(i).dx/2 <= xuHole) && min(cells(i).x-cells(i).dx/2 >= xdHole);
+            else
+                tmp = min(cells(i).x-cells(i).dx/2 < xuHole) && min(cells(i).x+cells(i).dx/2 > xdHole);
+            end
+            if tmp
+                remove = [remove,i];
+            end
+        end
+    elseif pCon.holes(h).type == 2
+        for i = 1:mCon.m                            % Removing cells
+            if pCon.holes(h).coverBoundary
+                tmp = max([cells(i).x(1)-cells(i).dx(1)/2 ; cells(i).x(2)-cells(i).dx(2)/2] - pCon.holes(h).x0) <= pCon.holes(h).r && ...
+                    max([cells(i).x(1)+cells(i).dx(1)/2 ; cells(i).x(2)-cells(i).dx(2)/2] - pCon.holes(h).x0) <= pCon.holes(h).r && ...
+                    max([cells(i).x(1)-cells(i).dx(1)/2 ; cells(i).x(2)+cells(i).dx(2)/2] - pCon.holes(h).x0) <= pCon.holes(h).r && ...
+                    max([cells(i).x(1)+cells(i).dx(1)/2 ; cells(i).x(2)+cells(i).dx(2)/2] - pCon.holes(h).x0) <= pCon.holes(h).r ;
+            else
+                tmp = norm([cells(i).x(1)-cells(i).dx(1)/2 ; cells(i).x(2)-cells(i).dx(2)/2] - pCon.holes(h).x0) <= pCon.holes(h).r || ...
+                    norm([cells(i).x(1)+cells(i).dx(1)/2 ; cells(i).x(2)-cells(i).dx(2)/2] - pCon.holes(h).x0) <= pCon.holes(h).r || ...
+                    norm([cells(i).x(1)-cells(i).dx(1)/2 ; cells(i).x(2)+cells(i).dx(2)/2] - pCon.holes(h).x0) <= pCon.holes(h).r || ...
+                    norm([cells(i).x(1)+cells(i).dx(1)/2 ; cells(i).x(2)+cells(i).dx(2)/2] - pCon.holes(h).x0) <= pCon.holes(h).r ;
+            end
+            if tmp
+                remove = [remove,i];
+            end
+        end
+    end
+end
+remove = unique(remove);
+
+
+% Removing nodes without cells
+
+removeNodes = [];
+neighboringCells = cell(mCon.n,1);
+for n = 1 : mCon.n
+   colInd = floor((n-1)/(mCon.my+1));
+   lineInd = mod(n-1,mCon.my+1);
+   
+
+   % Find at most four neighboring cells
+
+   if colInd == 0
+
+       if lineInd == 0
+           cellInd = 1;
+       elseif lineInd == mCon.my
+           cellInd = mCon.my;
+       else
+           cellInd = lineInd + [0 ; 1];
+       end
+
+   elseif colInd == mCon.mx
+
+       if lineInd == 0
+           cellInd = mCon.m - mCon.my + 1;
+       elseif lineInd == mCon.my
+           cellInd = mCon.m;
+       else
+           cellInd = mCon.m - mCon.my + lineInd + [ 0 ; 1];
+       end
+
+   else
+
+       if lineInd == 0
+           cellInd = [1+(colInd-1)*mCon.my ; 1+colInd*mCon.my];
+
+       elseif lineInd == mCon.my
+           cellInd = [colInd*mCon.my ; (colInd+1)*mCon.my];
+
+       else
+           cellInd = [lineInd+(colInd-1)*mCon.my ; 1+lineInd+(colInd-1)*mCon.my ; ...
+               lineInd+colInd*mCon.my ; 1+lineInd+colInd*mCon.my];
+       end
+
+   end
+   if ismember(cellInd,remove)
+       removeNodes = [removeNodes,n];
+   end
+   neighboringCells{n} = cellInd;
+end 
+cells(remove) = [];
+correspCellInd = zeros(1,mCon.m);
+correspCellInd(setdiff(1:mCon.m,remove)) = 1:length(cells);
+mCon.m = length(cells);
+
+
+
+nodes(removeNodes) = [];
+correspNodeInd = setdiff(1:mCon.n,removeNodes);
+mCon.n = mCon.n - length(removeNodes);
+
+
+
+% Volume computation
+pCon.vol = mCon.m*prod(cells(1).dx);
+    
 %% Neighboring relations    
 
     
@@ -328,6 +448,11 @@ for ic = 1 : mCon.m
         mCon.w((ic-1)*mCon.nG^2+ip) = cells(ic).J*cells(ic).int(ip).w;
     end
 end
+
+
+%% Mass nodes creation
+
+[mmCon,mnodes] = massConstants(pCon,mCon);
 
 time1=toc; %Mesh timer
 %disp([num2str(time1),' seconds to create problem'])
