@@ -16,10 +16,10 @@ clc
 % : the Element-Free Galerkin (EFG) method or the Finite Element Method (FEM).
 %
 % The material distribution 
-methodChoice = 1;           % 1: EFG, 2: FEM
+methodChoice = 2;           % 1: EFG, 2: FEM
 massChoice = 3;             % 1: Mass nodes, 2: Undeformable structural 
                             % members, 3: Deformable structural members 
-optimChoice = 5;            % 1: Overvelde's algorithm, 2: steepest descent,
+optimChoice = 1;            % 1: Overvelde's algorithm, 2: steepest descent,
                             % 3: conjugated gradients, 4: quasi Newton
                             % BFGS, 5: Matlab fminunc or fmincon 
                             % (recommanded), 6: Matlab ga.

@@ -20,15 +20,8 @@ if distrType < 3
     disp(['Iteration ',num2str(iter),' : Compliance = ',...
     num2str(C0p), ' ; Gradient norm = ',num2str(norm(dCdx0p))])
 else
-    cm = massConstraint(x0,oCon.relaxation);
-    C0p = C0p + oCon.mu*log(cm);
     cm = massConstraint(x0);
-    cm = cm - max(0,cm);
-    if cm > 0
-        oCon.mu = 2*oCon.mu;
-    else
-        oCon.mu = 0.9*oCon.mu;
-    end
+    cm = (cm - max(0,cm))/mmCon.mMax;
     disp(['Iteration ',num2str(iter),' : Compliance = ',...
     num2str(C0p), ' ; Gradient norm = ',num2str(norm(dCdx0p)),...
     ' ; Constraint violation = ',num2str(abs(cm))])

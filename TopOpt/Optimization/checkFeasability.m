@@ -31,11 +31,20 @@ function [x1,x1Changed] = checkFeasability(x1)
         end
         H = mmCon.rm/4*sparse(kron(eye(nm),[0 1; 1 0]));
         
-        a = 0.5*dcmdx(ind)'*H*dcmdx(ind);
-        b = dcmdx(ind)'*H*x1(ind);
+        a = dcmdx(ind)'*H*dcmdx(ind);
+        b = 0.5*(dcmdx(ind)'*H*x1(ind)+x1(ind)'*H*dcmdx(ind));
         
-        alpha = (-b - sqrt(b^2+4*a*cm))/(2*a);
+        alpha1 = (-b + sqrt(b^2+2*a*cm))/a;
+        alpha2 = (-b - sqrt(b^2+2*a*cm))/a;
         
-        x1(ind) = x1(ind) + 1.1*alpha*dcmdx(ind);
+        x11 = x1;
+        x12 = x1;
+        x11(ind) = x1(ind) + alpha1*dcmdx(ind);
+        x12(ind) = x1(ind) + alpha2*dcmdx(ind);
+        if min(x12(ind)) < 0
+            x1 = x11;
+        else
+            x1 = x12;
+        end
     end
 end

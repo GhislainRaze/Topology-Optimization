@@ -31,8 +31,7 @@ if method == 1
             Hs = [];
             filterEnabled = false;
         end
-        objectiveFunction = @(x) complianceEFG(x,distrType,Ke,f,G,q,...
-                H,Hs,distrType>=3);
+        objectiveFunction = @(x) complianceEFG(x,distrType,Ke,f,G,q,H,Hs);
     elseif method == 2
         [Ke,f,ubar]=FEMUnitMatrices();
         disp('Unit matrices computed')
@@ -45,8 +44,7 @@ if method == 1
             Hs = [];
             filterEnabled = false;
         end
-        objectiveFunction = @(x) complianceFEM(x,distrType,Ke,f,ubar,...
-                H,Hs,distrType>=3);
+        objectiveFunction = @(x) complianceFEM(x,distrType,Ke,f,ubar,H,Hs);
     end
 
 % Check mesh and mass distribution

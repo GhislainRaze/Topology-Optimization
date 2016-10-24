@@ -36,10 +36,9 @@ function history = matlabFmin(distrType,method)
             Hs = [];
             filterEnabled = false;
         end
-        objectiveFunction = @(x) complianceEFG(x,distrType,Ke,f,G,q,...
-                H,Hs,false);
+        objectiveFunction = @(x) complianceEFG(x,distrType,Ke,f,G,q,H,Hs);
     elseif method == 2
-        [Ke,f,ubar]=FEMUnitMatrices();
+        [Ke,f,ubar]=FEMUnitMatrices(nx,ny);
         disp('Unit matrices computed')
         if oCon.filter && ~oCon.filterIter 
             [H,Hs] = filterInitialization(cells,mCon.nG,oCon.rmin);
@@ -50,8 +49,7 @@ function history = matlabFmin(distrType,method)
             Hs = [];
             filterEnabled = false;
         end
-        objectiveFunction = @(x) complianceFEM(x,distrType,Ke,f,ubar,...
-                H,Hs,false);
+        objectiveFunction = @(x) complianceFEM(x,distrType,Ke,f,ubar,H,Hs);
     end
     
     x0f = [];
@@ -108,7 +106,8 @@ function history = matlabFmin(distrType,method)
     else
         % The algorithms 'interior-point' and 'sqp' work fine,
         % 'interior-point' is faster
-        opt = optimset('GradObj','on','GradConstr','on','Display','iter',...
+        opt = optimset('GradObj','on','GradConstr','on',...
+            'TolCon',oCon.relaxation-1,'Display','iter',...
             'OutputFcn',@outfun,'Algorithm','interior-point');
         x0 = fmincon(objectiveFunction,x0,[],[],[],[],LB,UB,...
             @matlabMassConstraint,opt);

@@ -34,7 +34,7 @@ function history = steepestDescent(distrType,method)
                 objectiveFunction,oCon.iterWolfe,distrType>=3);
         end
         
-        step = min(1,2.02*(C0p-C0)/norm(dXdc0p));
+        step = min(1,2.02*(C0p-C0)/norm(dCdx0p));
         postIteration;
     end
 postOptimization;
