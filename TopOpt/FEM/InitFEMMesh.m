@@ -19,8 +19,8 @@ GlobalConst
 tic %Mesh timer
 
 
-mCon.mx=40*pCon.Lx;                         % Number of elements along the width
-mCon.my=40*pCon.Ly;                         % Number of elements along the height
+mCon.mx=20*pCon.Lx;                         % Number of elements along the width
+mCon.my=20*pCon.Ly;                         % Number of elements along the height
 mCon.pn=1;                                  % Element degree (1: Q4, 2: Q8, 3: Q12)
 mCon.nG=2;                                  % Number of quadrature points in one dimension in each cells
 
@@ -413,6 +413,10 @@ for ic = 1 : mCon.m
 end
 
 
+disp('Mesh initialized')
+disp(['     ',num2str(mCon.m),' elements    (',num2str(mCon.mx),' along x and ',num2str(mCon.my),' along y)'])
+disp(['     ',num2str(mCon.n),' nodes       (',num2str(mCon.nx),' along x and ',num2str(mCon.ny),' along y)'])
+
 %% Mass nodes creation
 
 [mmCon,mnodes] = massConstants(pCon,mCon);
@@ -420,7 +424,5 @@ end
     
 time1=toc; %Mesh timer
 %disp([num2str(time1),' seconds to create problem'])
-disp('Mesh initialized')
-disp(['     ',num2str(mCon.m),' elements    (',num2str(mCon.mx),' along x and ',num2str(mCon.my),' along y)'])
-disp(['     ',num2str(mCon.n),' nodes       (',num2str(mCon.nx),' along x and ',num2str(mCon.ny),' along y)'])
+
 end

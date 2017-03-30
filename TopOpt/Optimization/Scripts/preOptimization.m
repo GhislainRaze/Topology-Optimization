@@ -18,6 +18,7 @@ deltaX = 1;
 time = 0;
 
 
+
 % Objective function definition
 if method == 1
         [Ke,f,G,q]=EFGUnitMatrices();
@@ -65,7 +66,7 @@ s0 = - dCdx0/norm(dCdx0);
 
 % Display information
 disp(['Iteration ',num2str(iter),' : Compliance = ',...
-    num2str(C0), ' ; Gradient norm = ',num2str(norm(dCdx0))])
+    num2str(C0,'% 5e'), ' ; Gradient norm = ',num2str(norm(dCdx0),'% 5e')])
 
 % History initialization
 history.x = x0;

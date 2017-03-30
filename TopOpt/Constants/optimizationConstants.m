@@ -36,13 +36,13 @@
 % structural members are used)
 
 % Algorithm parameters
-oCon.iterMax = 1000;                             % Maximum number of iteration
-oCon.relTol = 1e-6;                             % Maximum tolerance on the relative
+oCon.iterMax = 100;                             % Maximum number of iteration
+oCon.relTol = 1e-4;                             % Maximum tolerance on the relative
                                                 % compliance change
 oCon.xTol = 1e-6;                               % Maximum tolerance on the variables
                                                 % change
 oCon.cTol = 1e-5;
-oCon.dg = min(pCon.Lx,pCon.Ly)/10;              % Initial step size
+oCon.dg = min(pCon.Lx,pCon.Ly)/10;                 % Initial step size
 
 % Linesearch parameters
 oCon.trueMinimum = false;                       % Search for true minimum
@@ -73,3 +73,11 @@ oCon.relTolFilter = 1e-6;                       % Maximum tolerance on the relat
 % Mass constraint                                                
 oCon.relaxation = 1.01;                        % Relaxation factor for the mass constraint
 oCon.mu = 0.01;                               % Factor for the log barrier (should be small)
+
+% Move limits
+
+oCon.mlx = pCon.Lx/20;              % Initial step size
+oCon.mly = pCon.Ly/20;              % Initial step size
+oCon.mlt = pi/20;              % Initial step size
+oCon.mllx = pCon.Lx/20;              % Initial step size
+oCon.mlly = pCon.Ly/20;              % Initial step size

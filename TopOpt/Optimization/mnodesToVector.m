@@ -31,5 +31,4 @@ for i = 1 : length(mnodes)
         x0(nd*i) = mnodes(i).l(2);
     end
 end
-
 end

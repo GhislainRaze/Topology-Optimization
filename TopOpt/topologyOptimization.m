@@ -10,7 +10,6 @@
 clear all
 close all
 clc
-
 %% Method, material distribution and optimization algorithm
 % The elastic problem can be discretized thanks to two different methods
 % : the Element-Free Galerkin (EFG) method or the Finite Element Method (FEM).
@@ -19,7 +18,7 @@ clc
 methodChoice = 2;           % 1: EFG, 2: FEM
 massChoice = 3;             % 1: Mass nodes, 2: Undeformable structural 
                             % members, 3: Deformable structural members 
-optimChoice = 1;            % 1: Overvelde's algorithm, 2: steepest descent,
+optimChoice = 7;            % 1: Overvelde's algorithm, 2: steepest descent,
                             % 3: conjugated gradients, 4: quasi Newton
                             % BFGS, 5: Matlab fminunc or fmincon 
                             % (recommanded), 6: Matlab ga.
@@ -62,6 +61,7 @@ addpath('Display/');
 GlobalConst;
 problemConstants(loadCase);
 optimizationConstants;
+mergingConstants;
 
 
 %% Optimization process
@@ -115,8 +115,28 @@ switch optimChoice
         methodDisplay(methodChoice)
         massDisplay(massChoice)
         disp('=======================================================')
-        history = matlabGa(massChoice,methodChoice);    
+        history = matlabGa(massChoice,methodChoice);
+    case 7
+        disp('=======================================================')
+        disp('                  TOPOLOGY OPTIMIZATION                ')
+        disp('           Gradient algorithm with maximum step         ')
+        methodDisplay(methodChoice)
+        massDisplay(massChoice)
+        disp('=======================================================')
+        history = gradientMax(massChoice,methodChoice);    
+    case 8
+        disp('=======================================================')
+        disp('                  TOPOLOGY OPTIMIZATION                ')
+        disp('             BFGS algorithm with maximum step          ')
+        methodDisplay(methodChoice)
+        massDisplay(massChoice)
+        disp('=======================================================')
+        history = BFGSMax(massChoice,methodChoice); 
+        
 end
+
+% p = profile('info');
+save(['TopOptResults_',date])
 
 %% Postprocessing
 endPlots;

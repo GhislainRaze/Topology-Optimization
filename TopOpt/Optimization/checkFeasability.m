@@ -15,11 +15,11 @@
 % true if _x1_ has changed.
 
 
-function [x1,x1Changed] = checkFeasability(x1)
+function [x1,negativeWidth] = checkFeasability(x1)
 
     global oCon mmCon
     
-    x1Changed = false;
+    negativeWidth = false;
     [cm,dcmdx] = massConstraint(x1,oCon.relaxation);
     if cm < 0
         x1Changed = true;
@@ -41,10 +41,23 @@ function [x1,x1Changed] = checkFeasability(x1)
         x12 = x1;
         x11(ind) = x1(ind) + alpha1*dcmdx(ind);
         x12(ind) = x1(ind) + alpha2*dcmdx(ind);
-        if min(x12(ind)) < 0
+        
+        negative1 = x11(ind) <= 0;
+        negative2 = x12(ind) <= 0;
+        
+        
+        if sum(negative1) < sum(negative2)
             x1 = x11;
+            if sum(negative1) > 0
+                negativeWidth = true;
+                x1(ind(negative1)) = 0;
+            end
         else
             x1 = x12;
+            if sum(negative2) > 0
+                negativeWidth = true;
+                x1(ind(negative2)) = 0;
+            end
         end
     end
 end

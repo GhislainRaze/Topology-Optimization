@@ -12,7 +12,7 @@
 
 
 
-if optimChoice > 4 && (plotMass || plotDeformed)
+if optimChoice == 5 || optimChoice == 6 && (plotMass || plotDeformed)
    history = retrieveData(history,methodChoice,massChoice); 
 end
 

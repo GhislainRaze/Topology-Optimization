@@ -32,12 +32,12 @@ function h = elementsContour(x,distrType,h,figureTitle)
     end
     
     [xi,thetai,dmi] = mnodesData(nd,x);
-    dmi = dmi/2;
+    %dmi = dmi;
     
     
     cla
     hold on
-    for i = 1 : length(xi)
+    for i = 1 : size(xi,2)
     xd = [xi(1,i)+dmi(1,i)*cos(thetai(i))-dmi(2,i)*sin(thetai(i)),...
         xi(1,i)-dmi(1,i)*cos(thetai(i))-dmi(2,i)*sin(thetai(i)),...
         xi(1,i)-dmi(1,i)*cos(thetai(i))+dmi(2,i)*sin(thetai(i)),...

@@ -26,3 +26,4 @@
 global pCon mCon mmCon bcCon oCon
 global nodes mnodes bnodes cells bcells 
 global mTot
+global merCon

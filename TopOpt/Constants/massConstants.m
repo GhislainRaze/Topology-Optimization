@@ -40,8 +40,8 @@ function [mmCon,mnodes] = massConstants(pCon,mCon)
 
 
     % Meshless mass constants
-    mmCon.nx=3*pCon.Lx;                             % Number of mass nodes along the width
-    mmCon.ny=3*pCon.Ly;                             % Number of mass nodes along the height
+    mmCon.nx=5*pCon.Lx;                             % Number of mass nodes along the width
+    mmCon.ny=5*pCon.Ly;                             % Number of mass nodes along the height
     mmCon.volFrac = 0.45;                           % Volume fraction
     mmCon.fm = filledRegionsMass(pCon.filledRegions);% Fixed mass
     mmCon.mMax = mmCon.volFrac*pCon.vol-mmCon.fm;   % Maximum mass of the mass nodes
@@ -53,7 +53,7 @@ function [mmCon,mnodes] = massConstants(pCon,mCon)
     mmCon.EMin = 1e-9;                              % Minimum Young's modulus
     mmCon.rhoMax = 1.05;                            % Maximum density
     mmCon.rf = 0.2;                                 % Relative smoothing length for the filled regions
-    mmCon.distrType = 4;                            % Distribution type (1: in a rectangle,
+    mmCon.distrType = 5;                            % Distribution type (1: in a rectangle,
                                                     % 2: random, 3: semi-random, 4: uniform in
                                                     % a grid, 5: uniform in a checkerboard pattern)
     
@@ -101,6 +101,7 @@ function [mmCon,mnodes] = massConstants(pCon,mCon)
     
     % Mass nodes coordinates
     if mmCon.distrType == 1             % Regular distribution
+        distrTypeString = ['Regular distribution in rectangle of dimensions ',num2str(mmCon.Lx,mmCon.Ly)];
         for i=1:mmCon.nx
             for j=1:mmCon.ny
                 mnodes((i-1)*mmCon.ny+j).x=[mmCon.dx*(i-1)+mmCon.x0;...
@@ -108,6 +109,7 @@ function [mmCon,mnodes] = massConstants(pCon,mCon)
             end
         end
     elseif mmCon.distrType == 2         % Random distribution
+        distrTypeString = 'Random distribution';
         for i=1:mmCon.nx
             for j=1:mmCon.ny
                 mnodes((i-1)*mmCon.ny+j).x= [rand()*pCon.Lx;...
@@ -116,6 +118,7 @@ function [mmCon,mnodes] = massConstants(pCon,mCon)
             end
         end
     elseif mmCon.distrType == 3         % Semi-random distribution
+        distrTypeString = 'Semi-random distribution';
         for i=1:mmCon.nx
             for j=1:mmCon.ny
                 theta = rand()*2*pi;
@@ -126,8 +129,10 @@ function [mmCon,mnodes] = massConstants(pCon,mCon)
         end
     elseif mmCon.distrType == 4 || mmCon.distrType == 5 % Uniform distributions
         if mmCon.distrType == 4
+            distrTypeString = 'Regular distribution';
             step = 1; 
         else
+            distrTypeString = 'Alternated distribution';
             step = 2;
         end
         j0 = 1;
@@ -211,6 +216,9 @@ function [mmCon,mnodes] = massConstants(pCon,mCon)
         nodesInd = nodesInd(nodesMoved);
         nodesMoved = [];
     end
+disp('Mass nodes distribution initialized')
+disp(['     ',num2str(mmCon.n),' mass nodes'])
+disp(['     ',distrTypeString])
     
     
 end

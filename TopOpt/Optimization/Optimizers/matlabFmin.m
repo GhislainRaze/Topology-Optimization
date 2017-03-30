@@ -38,7 +38,7 @@ function history = matlabFmin(distrType,method)
         end
         objectiveFunction = @(x) complianceEFG(x,distrType,Ke,f,G,q,H,Hs);
     elseif method == 2
-        [Ke,f,ubar]=FEMUnitMatrices(nx,ny);
+        [Ke,f,ubar]=FEMUnitMatrices();
         disp('Unit matrices computed')
         if oCon.filter && ~oCon.filterIter 
             [H,Hs] = filterInitialization(cells,mCon.nG,oCon.rmin);
